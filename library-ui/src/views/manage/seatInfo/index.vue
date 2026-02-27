@@ -158,6 +158,14 @@
           <el-button
             size="mini"
             type="text"
+            icon="el-icon-edit"
+            @click="handleAddAppointment(scope.row)"
+            v-hasPermi="['manage:appointmentInfo:add']"
+          >预约
+          </el-button>
+          <el-button
+            size="mini"
+            type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['manage:seatInfo:remove']"
@@ -223,18 +231,68 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 添加或修改预约信息对话框 -->
+    <el-dialog :title="title" :visible.sync="openAppointment" width="500px" append-to-body>
+      <el-form ref="formAppointment" :model="form" :rules="rulesAppointment" label-width="80px">
+        <el-form-item label="标题" prop="name">
+          <el-input v-model="form.name" placeholder="请输入标题"/>
+        </el-form-item>
+        <el-form-item label="开始时间" prop="startTime">
+          <el-date-picker clearable
+                          v-model="form.startTime"
+                          type="datetime"
+                          value-format="yyyy-MM-dd HH:mm:ss"
+                          placeholder="请选择开始时间">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="结束时间" prop="endTime">
+          <el-date-picker clearable
+                          v-model="form.endTime"
+                          type="datetime"
+                          value-format="yyyy-MM-dd HH:mm:ss"
+                          placeholder="请选择结束时间">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
+        </el-form-item>
+        <!--        <el-form-item label="创建人" prop="userId">-->
+        <!--          <el-input v-model="form.userId" placeholder="请输入创建人"/>-->
+        <!--        </el-form-item>-->
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFormAppointment">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import {addSeatInfo, delSeatInfo, getSeatInfo, listSeatInfo, updateSeatInfo} from "@/api/manage/seatInfo";
 import {listLibraryInfo} from "@/api/manage/libraryInfo";
+import {addAppointmentInfo} from "@/api/manage/appointmentInfo";
 
 export default {
   name: "SeatInfo",
   dicts: ['manage_seat_status'],
   data() {
     return {
+      //预约
+      openAppointment: false,
+      // 表单校验
+      rulesAppointment: {
+        name: [
+          {required: true, message: "标题不能为空", trigger: "blur"}
+        ],
+        startTime: [
+          {required: true, message: "开始时间不能为空", trigger: "blur"}
+        ],
+        endTime: [
+          {required: true, message: "结束时间不能为空", trigger: "blur"}
+        ],
+      },
       //图书馆信息
       libraryList: [],
       libraryLoading: false,
@@ -316,6 +374,22 @@ export default {
     this.getLibraryList();
   },
   methods: {
+    /** 打开添加或修改预约信息对话框 */
+    handleAddAppointment(row) {
+      this.reset()
+      this.form.libraryId = row.libraryId
+      this.form.seatId = row.id
+      this.openAppointment = true;
+    },
+    submitFormAppointment() {
+      this.$refs["formAppointment"].validate(valid => {
+        if (!valid) return
+        addAppointmentInfo(this.form).then(res => {
+          this.$modal.msgSuccess("预约成功");
+          this.openAppointment = false;
+        })
+      })
+    },
     /** 获取图书馆信息*/
     getLibraryList() {
       this.libraryLoading = true
@@ -346,6 +420,7 @@ export default {
     // 取消按钮
     cancel() {
       this.open = false;
+      this.openAppointment = false
       this.reset();
     },
     // 表单重置
