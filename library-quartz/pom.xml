@@ -34,6 +34,10 @@
             <groupId>com.lz</groupId>
             <artifactId>library-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>library-manage</artifactId>
+        </dependency>
 
     </dependencies>
 

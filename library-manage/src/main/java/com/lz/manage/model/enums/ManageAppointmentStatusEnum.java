@@ -13,8 +13,9 @@ import java.util.Optional;
 @Getter
 public enum ManageAppointmentStatusEnum {
 
-    MANAGE_APPOINTMENT_STATUS_1("1", "已预约"),
-    MANAGE_APPOINTMENT_STATUS_2("2", "已过期");
+    MANAGE_APPOINTMENT_STATUS_1("1", "成功预约"),
+    MANAGE_APPOINTMENT_STATUS_2("2", "进行中"),
+    MANAGE_APPOINTMENT_STATUS_3("3", "已过期");
 
     private final String value;
     private final String label;

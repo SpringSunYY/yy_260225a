@@ -25,6 +25,7 @@ import com.lz.manage.service.ISeatInfoService;
 import com.lz.manage.service.IViolationInfoService;
 import com.lz.system.service.ISysUserService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -53,6 +54,9 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
 
     @Resource
     private IViolationInfoService violationInfoService;
+
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
     //region mybatis代码
 
@@ -217,6 +221,47 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
             return Collections.emptyList();
         }
         return appointmentInfoList.stream().map(AppointmentInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public void autoUpdateAppointmentInfo() {
+        //更新预约信息，首先查询到大约开始时间，小于结束时间的预约信息
+        LambdaQueryWrapper<AppointmentInfo> queryWrapper = new LambdaQueryWrapper<>();
+        Date nowDate = DateUtils.getNowDate();
+        queryWrapper.lt(AppointmentInfo::getStartTime, nowDate);
+        queryWrapper.gt(AppointmentInfo::getEndTime, nowDate);
+        queryWrapper.eq(AppointmentInfo::getStatus, ManageAppointmentStatusEnum.MANAGE_APPOINTMENT_STATUS_1.getValue());
+        List<AppointmentInfo> appointmentInfoList = this.list(queryWrapper);
+        ArrayList<SeatInfo> progressSeatList = new ArrayList<>();
+        for (AppointmentInfo appointmentInfo : appointmentInfoList) {
+            appointmentInfo.setStatus(ManageAppointmentStatusEnum.MANAGE_APPOINTMENT_STATUS_2.getValue());
+            SeatInfo seatInfo = new SeatInfo();
+            seatInfo.setId(appointmentInfo.getSeatId());
+            seatInfo.setStatus(ManageSeatStatusEnum.MANAGE_SEAT_STATUS_2.getValue());
+            progressSeatList.add(seatInfo);
+        }
+
+        //查询进行中但是结束时间小于当前时间的
+        queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.lt(AppointmentInfo::getEndTime, nowDate);
+        queryWrapper.eq(AppointmentInfo::getStatus, ManageAppointmentStatusEnum.MANAGE_APPOINTMENT_STATUS_2.getValue());
+        List<AppointmentInfo> progressAppointmentInfoList = this.list(queryWrapper);
+        List<SeatInfo> endSeatList = new ArrayList<>();
+        for (AppointmentInfo appointmentInfo : progressAppointmentInfoList) {
+            appointmentInfo.setStatus(ManageAppointmentStatusEnum.MANAGE_APPOINTMENT_STATUS_3.getValue());
+            SeatInfo seatInfo = new SeatInfo();
+            seatInfo.setId(appointmentInfo.getSeatId());
+            seatInfo.setStatus(ManageSeatStatusEnum.MANAGE_SEAT_STATUS_1.getValue());
+            endSeatList.add(seatInfo);
+        }
+
+        //批量更新
+        transactionTemplate.executeWithoutResult(status -> {
+            appointmentInfoMapper.updateById(appointmentInfoList);
+            appointmentInfoMapper.updateById(progressAppointmentInfoList);
+            seatInfoService.updateBatchById(progressSeatList);
+            seatInfoService.updateBatchById(endSeatList);
+        });
     }
 
 }
