@@ -54,6 +54,7 @@ public class LibraryInfo implements Serializable
     @Excel(name = "创建人",type = Excel.Type.EXPORT)
     private Long userId;
     @Excel(name = "创建人",type = Excel.Type.IMPORT)
+    @TableField(exist = false)
     private String userName;
 
     /** 创建时间 */

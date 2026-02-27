@@ -31,8 +31,11 @@ public class SeatInfo implements Serializable
     private Long id;
 
     /** 图书馆 */
-    @Excel(name = "图书馆")
+    @Excel(name = "图书馆", type=Excel.Type.EXPORT)
     private Long libraryId;
+    @TableField(exist = false)
+    @Excel(name = "图书馆", type=Excel.Type.EXPORT)
+    private String libraryName;
 
     /** 名称 */
     @Excel(name = "名称")
@@ -55,8 +58,11 @@ public class SeatInfo implements Serializable
     private String remark;
 
     /** 创建人 */
-    @Excel(name = "创建人")
+    @Excel(name = "创建人", type=Excel.Type.EXPORT)
     private Long userId;
+    @TableField(exist = false)
+    @Excel(name = "创建人", type=Excel.Type.EXPORT)
+    private String userName;
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
