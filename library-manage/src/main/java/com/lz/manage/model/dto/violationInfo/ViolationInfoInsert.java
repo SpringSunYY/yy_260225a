@@ -1,11 +1,13 @@
 package com.lz.manage.model.dto.violationInfo;
 
-import java.io.Serializable;
-import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.manage.model.domain.ViolationInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.manage.model.domain.ViolationInfo;
+
+import java.io.Serializable;
+import java.util.Date;
+
 /**
  * 违规信息Vo对象 tb_violation_info
  *
@@ -13,31 +15,49 @@ import com.lz.manage.model.domain.ViolationInfo;
  * @date 2026-02-27
  */
 @Data
-public class ViolationInfoInsert implements Serializable
-{
+public class ViolationInfoInsert implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 图书馆 */
+    /**
+     * 图书馆
+     */
     private Long libraryId;
 
-    /** 标题 */
+    /**
+     * 用户
+     */
+    private Long userId;
+
+    /**
+     * 标题
+     */
     private String name;
 
-    /** 原因 */
+    /**
+     * 原因
+     */
     private String cause;
 
-    /** 开始时间 */
+    /**
+     * 开始时间
+     */
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date startTime;
 
-    /** 结束时间 */
+    /**
+     * 结束时间
+     */
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endTime;
 
-    /** 状态 */
+    /**
+     * 状态
+     */
     private String status;
 
-    /** 备注 */
+    /**
+     * 备注
+     */
     private String remark;
 
     /**

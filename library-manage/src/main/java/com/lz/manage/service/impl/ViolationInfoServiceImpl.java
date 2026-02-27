@@ -1,26 +1,24 @@
 package com.lz.manage.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-import javax.validation.Validator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.lz.common.utils.StringUtils;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.utils.DateUtils;
-import javax.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.core.domain.entity.SysUser;
+import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.SecurityUtils;
+import com.lz.common.utils.StringUtils;
 import com.lz.manage.mapper.ViolationInfoMapper;
+import com.lz.manage.model.domain.LibraryInfo;
 import com.lz.manage.model.domain.ViolationInfo;
-import com.lz.manage.service.IViolationInfoService;
 import com.lz.manage.model.dto.violationInfo.ViolationInfoQuery;
 import com.lz.manage.model.vo.violationInfo.ViolationInfoVo;
+import com.lz.manage.service.ILibraryInfoService;
+import com.lz.manage.service.IViolationInfoService;
+import com.lz.system.service.ISysUserService;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 违规信息Service业务层处理
@@ -29,13 +27,20 @@ import com.lz.manage.model.vo.violationInfo.ViolationInfoVo;
  * @date 2026-02-27
  */
 @Service
-public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, ViolationInfo> implements IViolationInfoService
-{
+public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, ViolationInfo> implements IViolationInfoService {
 
     @Resource
     private ViolationInfoMapper violationInfoMapper;
 
+    @Resource
+    private ISysUserService sysUserService;
+
+    @Resource
+    private ILibraryInfoService libraryInfoService;
+
+
     //region mybatis代码
+
     /**
      * 查询违规信息
      *
@@ -43,8 +48,7 @@ public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, V
      * @return 违规信息
      */
     @Override
-    public ViolationInfo selectViolationInfoById(Long id)
-    {
+    public ViolationInfo selectViolationInfoById(Long id) {
         return violationInfoMapper.selectViolationInfoById(id);
     }
 
@@ -55,9 +59,19 @@ public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, V
      * @return 违规信息
      */
     @Override
-    public List<ViolationInfo> selectViolationInfoList(ViolationInfo violationInfo)
-    {
-        return violationInfoMapper.selectViolationInfoList(violationInfo);
+    public List<ViolationInfo> selectViolationInfoList(ViolationInfo violationInfo) {
+        List<ViolationInfo> violationInfos = violationInfoMapper.selectViolationInfoList(violationInfo);
+        for (ViolationInfo info : violationInfos) {
+            SysUser sysUser = sysUserService.selectUserById(info.getUserId());
+            if (StringUtils.isNotNull(sysUser)) {
+                info.setUserName(sysUser.getUserName());
+            }
+            LibraryInfo libraryInfo = libraryInfoService.selectLibraryInfoById(info.getLibraryId());
+            if (StringUtils.isNotNull(libraryInfo)) {
+                info.setLibraryName(libraryInfo.getName());
+            }
+        }
+        return violationInfos;
     }
 
     /**
@@ -67,8 +81,8 @@ public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, V
      * @return 结果
      */
     @Override
-    public int insertViolationInfo(ViolationInfo violationInfo)
-    {
+    public int insertViolationInfo(ViolationInfo violationInfo) {
+        violationInfo.setCreateBy(SecurityUtils.getUsername());
         violationInfo.setCreateTime(DateUtils.getNowDate());
         return violationInfoMapper.insertViolationInfo(violationInfo);
     }
@@ -80,8 +94,8 @@ public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, V
      * @return 结果
      */
     @Override
-    public int updateViolationInfo(ViolationInfo violationInfo)
-    {
+    public int updateViolationInfo(ViolationInfo violationInfo) {
+        violationInfo.setUpdateBy(SecurityUtils.getUsername());
         violationInfo.setUpdateTime(DateUtils.getNowDate());
         return violationInfoMapper.updateViolationInfo(violationInfo);
     }
@@ -93,8 +107,7 @@ public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, V
      * @return 结果
      */
     @Override
-    public int deleteViolationInfoByIds(Long[] ids)
-    {
+    public int deleteViolationInfoByIds(Long[] ids) {
         return violationInfoMapper.deleteViolationInfoByIds(ids);
     }
 
@@ -105,13 +118,13 @@ public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, V
      * @return 结果
      */
     @Override
-    public int deleteViolationInfoById(Long id)
-    {
+    public int deleteViolationInfoById(Long id) {
         return violationInfoMapper.deleteViolationInfoById(id);
     }
+
     //endregion
     @Override
-    public QueryWrapper<ViolationInfo> getQueryWrapper(ViolationInfoQuery violationInfoQuery){
+    public QueryWrapper<ViolationInfo> getQueryWrapper(ViolationInfoQuery violationInfoQuery) {
         QueryWrapper<ViolationInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = violationInfoQuery.getParams();
@@ -119,22 +132,22 @@ public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, V
             params = new HashMap<>();
         }
         Long id = violationInfoQuery.getId();
-        queryWrapper.eq( StringUtils.isNotNull(id),"id",id);
+        queryWrapper.eq(StringUtils.isNotNull(id), "id", id);
 
         Long libraryId = violationInfoQuery.getLibraryId();
-        queryWrapper.eq( StringUtils.isNotNull(libraryId),"library_id",libraryId);
+        queryWrapper.eq(StringUtils.isNotNull(libraryId), "library_id", libraryId);
 
         String name = violationInfoQuery.getName();
-        queryWrapper.like(StringUtils.isNotEmpty(name) ,"name",name);
+        queryWrapper.like(StringUtils.isNotEmpty(name), "name", name);
 
         String status = violationInfoQuery.getStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(status) ,"status",status);
+        queryWrapper.eq(StringUtils.isNotEmpty(status), "status", status);
 
         Long userId = violationInfoQuery.getUserId();
-        queryWrapper.eq( StringUtils.isNotNull(userId),"user_id",userId);
+        queryWrapper.eq(StringUtils.isNotNull(userId), "user_id", userId);
 
         Date createTime = violationInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
         return queryWrapper;
     }

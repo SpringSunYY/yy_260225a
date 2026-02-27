@@ -12,14 +12,17 @@ import com.lz.manage.mapper.AppointmentInfoMapper;
 import com.lz.manage.model.domain.AppointmentInfo;
 import com.lz.manage.model.domain.LibraryInfo;
 import com.lz.manage.model.domain.SeatInfo;
+import com.lz.manage.model.domain.ViolationInfo;
 import com.lz.manage.model.dto.appointmentInfo.AppointmentInfoQuery;
 import com.lz.manage.model.enums.ManageAppointmentStatusEnum;
 import com.lz.manage.model.enums.ManageLibraryStatusEnum;
 import com.lz.manage.model.enums.ManageSeatStatusEnum;
+import com.lz.manage.model.enums.ManageViolationStatusEnum;
 import com.lz.manage.model.vo.appointmentInfo.AppointmentInfoVo;
 import com.lz.manage.service.IAppointmentInfoService;
 import com.lz.manage.service.ILibraryInfoService;
 import com.lz.manage.service.ISeatInfoService;
+import com.lz.manage.service.IViolationInfoService;
 import com.lz.system.service.ISysUserService;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +50,9 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
 
     @Resource
     private ISeatInfoService seatInfoService;
+
+    @Resource
+    private IViolationInfoService violationInfoService;
 
     //region mybatis代码
 
@@ -96,6 +102,13 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
     @Override
     public int insertAppointmentInfo(AppointmentInfo appointmentInfo) {
         //首先校验数据
+        //判断时间段是否冲突
+        //开始时间不能晚于结束时间
+        ThrowUtils.throwIf(appointmentInfo.getStartTime().after(appointmentInfo.getEndTime()), "开始时间不能晚于结束时间");
+        //开始时间不能早于当前时间
+        ThrowUtils.throwIf(appointmentInfo.getStartTime().before(new Date()), "开始时间不能早于当前时间");
+        //开始时间和结束时间不能相同
+        ThrowUtils.throwIf(appointmentInfo.getStartTime().equals(appointmentInfo.getEndTime()), "开始时间和结束时间不能相同");
         //判断图书馆是否存在
         LibraryInfo libraryInfo = libraryInfoService.selectLibraryInfoById(appointmentInfo.getLibraryId());
         ThrowUtils.throwIf(
@@ -110,13 +123,14 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
                         || !seatInfo.getStatus().equals(ManageSeatStatusEnum.MANAGE_SEAT_STATUS_1.getValue()),
                 "座位不存在或者不可预约"
         );
-        //判断时间段是否冲突
-        //开始时间不能晚于结束时间
-        ThrowUtils.throwIf(appointmentInfo.getStartTime().after(appointmentInfo.getEndTime()), "开始时间不能晚于结束时间");
-        //开始时间不能早于当前时间
-        ThrowUtils.throwIf(appointmentInfo.getStartTime().before(new Date()), "开始时间不能早于当前时间");
-        //开始时间和结束时间不能相同
-        ThrowUtils.throwIf(appointmentInfo.getStartTime().equals(appointmentInfo.getEndTime()), "开始时间和结束时间不能相同");
+        //判断是否有违规
+        List<ViolationInfo> list = violationInfoService.list(new LambdaQueryWrapper<ViolationInfo>()
+                .eq(ViolationInfo::getUserId, SecurityUtils.getUserId())
+                .eq(ViolationInfo::getLibraryId, appointmentInfo.getLibraryId())
+                .eq(ViolationInfo::getStatus, ManageViolationStatusEnum.MANAGE_VIOLATION_STATUS_1.getValue()));
+        ThrowUtils.throwIf(!list.isEmpty(), "您有违规，不可预约此图书馆");
+
+
         // 冲突条件：新预约的开始时间 < 已有预约的结束时间 且 新预约的结束时间 > 已有预约的开始时间
         LambdaQueryWrapper<AppointmentInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(AppointmentInfo::getLibraryId, appointmentInfo.getLibraryId());
