@@ -209,7 +209,10 @@ export default {
             if (idx > 0) {
               const prevVal = data[idx - 1].value;
               const diff = val - prevVal;
-              const percent = prevVal !== 0 ? ((diff / prevVal) * 100).toFixed(1) : 0;
+              let percent = prevVal !== 0 ? ((diff / prevVal) * 100).toFixed(1) : 0;
+              if ( percent==='Infinity'){
+                percent='NaN';
+              }
               const color = diff >= 0 ? '#ff4d4f' : '#52c41a';
               ratioHtml = `<span style="color:${color}; margin-left:8px;">${diff >= 0 ? '+' : ''}${diff} (${percent}%)</span>`;
             }

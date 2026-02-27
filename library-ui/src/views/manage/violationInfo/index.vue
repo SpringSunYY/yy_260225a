@@ -278,6 +278,7 @@ import {
 } from "@/api/manage/violationInfo";
 import {listLibraryInfo} from "@/api/manage/libraryInfo";
 import {listUser} from "@/api/system/user";
+import {checkPermi} from "@/utils/permission";
 
 export default {
   name: "ViolationInfo",
@@ -386,6 +387,9 @@ export default {
   methods: {
     /** 获取用户信息*/
     getUserInfoList() {
+      if (!checkPermi(['system:user:list'])) {
+        return
+      }
       this.userInfoLoading = true
       listUser(this.userInfoQuery).then(response => {
         this.userInfoList = response.rows;

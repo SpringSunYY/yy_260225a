@@ -46,7 +46,10 @@
             <if test="status != null  and status != ''">and status = #{status}</if>
             <if test="createBy != null  and createBy != ''">and create_by like concat('%', #{createBy}, '%')</if>
             <if test="createTime != null ">and create_time = #{createTime}</if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
         </where>
+        order by create_time desc
     </select>
 
     <select id="selectViolationInfoById" parameterType="Long" resultMap="ViolationInfoResult">

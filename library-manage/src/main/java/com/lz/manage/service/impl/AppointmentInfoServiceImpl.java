@@ -3,6 +3,7 @@ package com.lz.manage.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.DataScope;
 import com.lz.common.core.domain.entity.SysUser;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
@@ -78,6 +79,7 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
      * @return 预约信息
      */
     @Override
+    @DataScope(deptAlias = "tb_appointment_info", userAlias = "tb_appointment_info")
     public List<AppointmentInfo> selectAppointmentInfoList(AppointmentInfo appointmentInfo) {
         List<AppointmentInfo> appointmentInfos = appointmentInfoMapper.selectAppointmentInfoList(appointmentInfo);
         for (AppointmentInfo info : appointmentInfos) {
@@ -124,7 +126,7 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
         SeatInfo seatInfo = seatInfoService.selectSeatInfoById(appointmentInfo.getSeatId());
         ThrowUtils.throwIf(
                 StringUtils.isNull(seatInfo)
-                        || !seatInfo.getStatus().equals(ManageSeatStatusEnum.MANAGE_SEAT_STATUS_1.getValue()),
+                        || seatInfo.getStatus().equals(ManageSeatStatusEnum.MANAGE_SEAT_STATUS_0.getValue()),
                 "座位不存在或者不可预约"
         );
         //判断是否有违规

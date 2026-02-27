@@ -181,41 +181,41 @@
     <!-- 添加或修改预约信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="图书馆" prop="libraryId">
-          <el-input v-model="form.libraryId" placeholder="请输入图书馆"/>
-        </el-form-item>
-        <el-form-item label="座位" prop="seatId">
-          <el-input v-model="form.seatId" placeholder="请输入座位"/>
-        </el-form-item>
-        <el-form-item label="标题" prop="name">
-          <el-input v-model="form.name" placeholder="请输入标题"/>
-        </el-form-item>
-        <el-form-item label="开始时间" prop="startTime">
-          <el-date-picker clearable
-                          v-model="form.startTime"
-                          type="date"
-                          value-format="yyyy-MM-dd"
-                          placeholder="请选择开始时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="结束时间" prop="endTime">
-          <el-date-picker clearable
-                          v-model="form.endTime"
-                          type="date"
-                          value-format="yyyy-MM-dd"
-                          placeholder="请选择结束时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="form.status">
-            <el-radio
-              v-for="dict in dict.type.manage_appointment_status"
-              :key="dict.value"
-              :label="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
+<!--        <el-form-item label="图书馆" prop="libraryId">-->
+<!--          <el-input v-model="form.libraryId" placeholder="请输入图书馆"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="座位" prop="seatId">-->
+<!--          <el-input v-model="form.seatId" placeholder="请输入座位"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="标题" prop="name">-->
+<!--          <el-input v-model="form.name" placeholder="请输入标题"/>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="开始时间" prop="startTime">-->
+<!--          <el-date-picker clearable-->
+<!--                          v-model="form.startTime"-->
+<!--                          type="date"-->
+<!--                          value-format="yyyy-MM-dd"-->
+<!--                          placeholder="请选择开始时间">-->
+<!--          </el-date-picker>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="结束时间" prop="endTime">-->
+<!--          <el-date-picker clearable-->
+<!--                          v-model="form.endTime"-->
+<!--                          type="date"-->
+<!--                          value-format="yyyy-MM-dd"-->
+<!--                          placeholder="请选择结束时间">-->
+<!--          </el-date-picker>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="状态" prop="status">-->
+<!--          <el-radio-group v-model="form.status">-->
+<!--            <el-radio-->
+<!--              v-for="dict in dict.type.manage_appointment_status"-->
+<!--              :key="dict.value"-->
+<!--              :label="dict.value"-->
+<!--            >{{ dict.label }}-->
+<!--            </el-radio>-->
+<!--          </el-radio-group>-->
+<!--        </el-form-item>-->
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>

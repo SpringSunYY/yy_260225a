@@ -27,8 +27,8 @@ export default {
   mounted() {
     if (checkPermi(['manage:statistics'])) {
       this.permi = true;
+      this.getAppointmentStatistics();
     }
-    this.getAppointmentStatistics();
   },
   methods: {
     getAppointmentStatistics() {

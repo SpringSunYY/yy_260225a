@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.manage.mapper.AppointmentInfoMapper">
-    
+
     <resultMap type="AppointmentInfo" id="AppointmentInfoResult">
         <result property="id"    column="id"    />
         <result property="libraryId"    column="library_id"    />
@@ -25,16 +25,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectAppointmentInfoList" parameterType="AppointmentInfo" resultMap="AppointmentInfoResult">
         <include refid="selectAppointmentInfoVo"/>
-        <where>  
-            <if test="id != null "> and id = #{id}</if>
-            <if test="libraryId != null "> and library_id = #{libraryId}</if>
-            <if test="seatId != null "> and seat_id = #{seatId}</if>
-            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
-            <if test="status != null  and status != ''"> and status = #{status}</if>
-            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        <where>
+            <if test="id != null ">and id = #{id}</if>
+            <if test="libraryId != null ">and library_id = #{libraryId}</if>
+            <if test="seatId != null ">and seat_id = #{seatId}</if>
+            <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="status != null  and status != ''">and status = #{status}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+                and DATE_FORMAT(create_time, '%Y-%m-%d') between #{params.beginCreateTime} and #{params.endCreateTime}
+            </if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
         </where>
+        order by create_time desc
     </select>
-    
+
     <select id="selectAppointmentInfoById" parameterType="Long" resultMap="AppointmentInfoResult">
         <include refid="selectAppointmentInfoVo"/>
         where id = #{id}
@@ -93,7 +98,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteAppointmentInfoByIds" parameterType="String">
-        delete from tb_appointment_info where id in 
+        delete from tb_appointment_info where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

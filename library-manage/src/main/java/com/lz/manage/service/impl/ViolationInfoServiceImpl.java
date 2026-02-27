@@ -3,6 +3,7 @@ package com.lz.manage.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.DataScope;
 import com.lz.common.core.domain.entity.SysUser;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
@@ -61,6 +62,7 @@ public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, V
      * @return 违规信息
      */
     @Override
+    @DataScope(deptAlias = "tb_violation_info", userAlias = "tb_violation_info")
     public List<ViolationInfo> selectViolationInfoList(ViolationInfo violationInfo) {
         List<ViolationInfo> violationInfos = violationInfoMapper.selectViolationInfoList(violationInfo);
         for (ViolationInfo info : violationInfos) {

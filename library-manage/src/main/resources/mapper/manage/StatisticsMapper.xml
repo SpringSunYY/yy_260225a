@@ -14,7 +14,7 @@
             and create_time &lt; #{endTime}
         </if>
         </where>
-        group by create_time
-        order by create_time
+        group by DATE(create_time)
+        order by DATE(create_time)
     </select>
 </mapper>
