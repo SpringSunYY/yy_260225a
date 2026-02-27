@@ -61,6 +61,11 @@
             <artifactId>library-generator</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.lz</groupId>
+            <artifactId>library-manage</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

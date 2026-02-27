@@ -234,6 +234,12 @@
                 <version>${library.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.lz</groupId>
+                <artifactId>library-manage</artifactId>
+                <version>${library.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -244,6 +250,7 @@
         <module>library-quartz</module>
         <module>library-generator</module>
         <module>library-common</module>
+        <module>library-manage</module>
     </modules>
     <packaging>pom</packaging>
 
