@@ -51,8 +51,10 @@ public class LibraryInfo implements Serializable
     private String remark;
 
     /** 创建人 */
-    @Excel(name = "创建人")
+    @Excel(name = "创建人",type = Excel.Type.EXPORT)
     private Long userId;
+    @Excel(name = "创建人",type = Excel.Type.IMPORT)
+    private String userName;
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")

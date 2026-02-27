@@ -1,26 +1,22 @@
 package com.lz.manage.service.impl;
 
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-import javax.validation.Validator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.lz.common.utils.StringUtils;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lz.common.utils.DateUtils;
-import javax.annotation.Resource;
-import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.core.domain.entity.SysUser;
+import com.lz.common.utils.DateUtils;
+import com.lz.common.utils.SecurityUtils;
+import com.lz.common.utils.StringUtils;
 import com.lz.manage.mapper.LibraryInfoMapper;
 import com.lz.manage.model.domain.LibraryInfo;
-import com.lz.manage.service.ILibraryInfoService;
 import com.lz.manage.model.dto.libraryInfo.LibraryInfoQuery;
 import com.lz.manage.model.vo.libraryInfo.LibraryInfoVo;
+import com.lz.manage.service.ILibraryInfoService;
+import com.lz.system.service.ISysUserService;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 图书馆信息Service业务层处理
@@ -29,13 +25,16 @@ import com.lz.manage.model.vo.libraryInfo.LibraryInfoVo;
  * @date 2026-02-27
  */
 @Service
-public class LibraryInfoServiceImpl extends ServiceImpl<LibraryInfoMapper, LibraryInfo> implements ILibraryInfoService
-{
+public class LibraryInfoServiceImpl extends ServiceImpl<LibraryInfoMapper, LibraryInfo> implements ILibraryInfoService {
 
     @Resource
     private LibraryInfoMapper libraryInfoMapper;
 
+    @Resource
+    private ISysUserService sysUserService;
+
     //region mybatis代码
+
     /**
      * 查询图书馆信息
      *
@@ -43,8 +42,7 @@ public class LibraryInfoServiceImpl extends ServiceImpl<LibraryInfoMapper, Libra
      * @return 图书馆信息
      */
     @Override
-    public LibraryInfo selectLibraryInfoById(Long id)
-    {
+    public LibraryInfo selectLibraryInfoById(Long id) {
         return libraryInfoMapper.selectLibraryInfoById(id);
     }
 
@@ -55,9 +53,15 @@ public class LibraryInfoServiceImpl extends ServiceImpl<LibraryInfoMapper, Libra
      * @return 图书馆信息
      */
     @Override
-    public List<LibraryInfo> selectLibraryInfoList(LibraryInfo libraryInfo)
-    {
-        return libraryInfoMapper.selectLibraryInfoList(libraryInfo);
+    public List<LibraryInfo> selectLibraryInfoList(LibraryInfo libraryInfo) {
+        List<LibraryInfo> libraryInfos = libraryInfoMapper.selectLibraryInfoList(libraryInfo);
+        for (LibraryInfo info : libraryInfos) {
+            SysUser sysUser = sysUserService.selectUserById(info.getUserId());
+            if (StringUtils.isNotNull(sysUser)) {
+                info.setUserName(sysUser.getUserName());
+            }
+        }
+        return libraryInfos;
     }
 
     /**
@@ -67,8 +71,8 @@ public class LibraryInfoServiceImpl extends ServiceImpl<LibraryInfoMapper, Libra
      * @return 结果
      */
     @Override
-    public int insertLibraryInfo(LibraryInfo libraryInfo)
-    {
+    public int insertLibraryInfo(LibraryInfo libraryInfo) {
+        libraryInfo.setUserId(SecurityUtils.getUserId());
         libraryInfo.setCreateTime(DateUtils.getNowDate());
         return libraryInfoMapper.insertLibraryInfo(libraryInfo);
     }
@@ -80,8 +84,8 @@ public class LibraryInfoServiceImpl extends ServiceImpl<LibraryInfoMapper, Libra
      * @return 结果
      */
     @Override
-    public int updateLibraryInfo(LibraryInfo libraryInfo)
-    {
+    public int updateLibraryInfo(LibraryInfo libraryInfo) {
+        libraryInfo.setUpdateBy(SecurityUtils.getUsername());
         libraryInfo.setUpdateTime(DateUtils.getNowDate());
         return libraryInfoMapper.updateLibraryInfo(libraryInfo);
     }
@@ -93,8 +97,7 @@ public class LibraryInfoServiceImpl extends ServiceImpl<LibraryInfoMapper, Libra
      * @return 结果
      */
     @Override
-    public int deleteLibraryInfoByIds(Long[] ids)
-    {
+    public int deleteLibraryInfoByIds(Long[] ids) {
         return libraryInfoMapper.deleteLibraryInfoByIds(ids);
     }
 
@@ -105,13 +108,13 @@ public class LibraryInfoServiceImpl extends ServiceImpl<LibraryInfoMapper, Libra
      * @return 结果
      */
     @Override
-    public int deleteLibraryInfoById(Long id)
-    {
+    public int deleteLibraryInfoById(Long id) {
         return libraryInfoMapper.deleteLibraryInfoById(id);
     }
+
     //endregion
     @Override
-    public QueryWrapper<LibraryInfo> getQueryWrapper(LibraryInfoQuery libraryInfoQuery){
+    public QueryWrapper<LibraryInfo> getQueryWrapper(LibraryInfoQuery libraryInfoQuery) {
         QueryWrapper<LibraryInfo> queryWrapper = new QueryWrapper<>();
         //如果不使用params可以删除
         Map<String, Object> params = libraryInfoQuery.getParams();
@@ -119,16 +122,16 @@ public class LibraryInfoServiceImpl extends ServiceImpl<LibraryInfoMapper, Libra
             params = new HashMap<>();
         }
         Long id = libraryInfoQuery.getId();
-        queryWrapper.eq( StringUtils.isNotNull(id),"id",id);
+        queryWrapper.eq(StringUtils.isNotNull(id), "id", id);
 
         String name = libraryInfoQuery.getName();
-        queryWrapper.like(StringUtils.isNotEmpty(name) ,"name",name);
+        queryWrapper.like(StringUtils.isNotEmpty(name), "name", name);
 
         String status = libraryInfoQuery.getStatus();
-        queryWrapper.eq(StringUtils.isNotEmpty(status) ,"status",status);
+        queryWrapper.eq(StringUtils.isNotEmpty(status), "status", status);
 
         Date createTime = libraryInfoQuery.getCreateTime();
-        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime"))&&StringUtils.isNotNull(params.get("endCreateTime")),"create_time",params.get("beginCreateTime"),params.get("endCreateTime"));
+        queryWrapper.between(StringUtils.isNotNull(params.get("beginCreateTime")) && StringUtils.isNotNull(params.get("endCreateTime")), "create_time", params.get("beginCreateTime"), params.get("endCreateTime"));
 
         return queryWrapper;
     }
