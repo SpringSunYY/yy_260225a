@@ -1,5 +1,6 @@
 package com.lz.manage.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lz.common.core.domain.entity.SysUser;
@@ -10,6 +11,7 @@ import com.lz.manage.mapper.ViolationInfoMapper;
 import com.lz.manage.model.domain.LibraryInfo;
 import com.lz.manage.model.domain.ViolationInfo;
 import com.lz.manage.model.dto.violationInfo.ViolationInfoQuery;
+import com.lz.manage.model.enums.ManageViolationStatusEnum;
 import com.lz.manage.model.vo.violationInfo.ViolationInfoVo;
 import com.lz.manage.service.ILibraryInfoService;
 import com.lz.manage.service.IViolationInfoService;
@@ -158,6 +160,19 @@ public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, V
             return Collections.emptyList();
         }
         return violationInfoList.stream().map(ViolationInfoVo::objToVo).collect(Collectors.toList());
+    }
+
+    @Override
+    public void autoUpdateViolationInfo() {
+        //获取到结束时间小于当前时间的违规信息且状态为进行中的
+        LambdaQueryWrapper<ViolationInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ViolationInfo::getStatus, ManageViolationStatusEnum.MANAGE_VIOLATION_STATUS_1.getValue());
+        queryWrapper.le(ViolationInfo::getEndTime, DateUtils.getNowDate());
+        List<ViolationInfo> violationInfoList = this.list(queryWrapper);
+        for (ViolationInfo violationInfo : violationInfoList) {
+            violationInfo.setStatus(ManageViolationStatusEnum.MANAGE_VIOLATION_STATUS_2.getValue());
+        }
+        violationInfoMapper.updateById(violationInfoList);
     }
 
 }

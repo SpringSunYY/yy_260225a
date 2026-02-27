@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 /**
  * 违规信息Service接口
- * 
+ *
  * @author YY
  * @date 2026-02-27
  */
@@ -18,7 +18,7 @@ public interface IViolationInfoService extends IService<ViolationInfo>
     //region mybatis代码
     /**
      * 查询违规信息
-     * 
+     *
      * @param id 违规信息主键
      * @return 违规信息
      */
@@ -26,7 +26,7 @@ public interface IViolationInfoService extends IService<ViolationInfo>
 
     /**
      * 查询违规信息列表
-     * 
+     *
      * @param violationInfo 违规信息
      * @return 违规信息集合
      */
@@ -34,7 +34,7 @@ public interface IViolationInfoService extends IService<ViolationInfo>
 
     /**
      * 新增违规信息
-     * 
+     *
      * @param violationInfo 违规信息
      * @return 结果
      */
@@ -42,7 +42,7 @@ public interface IViolationInfoService extends IService<ViolationInfo>
 
     /**
      * 修改违规信息
-     * 
+     *
      * @param violationInfo 违规信息
      * @return 结果
      */
@@ -50,7 +50,7 @@ public interface IViolationInfoService extends IService<ViolationInfo>
 
     /**
      * 批量删除违规信息
-     * 
+     *
      * @param ids 需要删除的违规信息主键集合
      * @return 结果
      */
@@ -58,7 +58,7 @@ public interface IViolationInfoService extends IService<ViolationInfo>
 
     /**
      * 删除违规信息信息
-     * 
+     *
      * @param id 违规信息主键
      * @return 结果
      */
@@ -79,4 +79,6 @@ public interface IViolationInfoService extends IService<ViolationInfo>
      * @return ViolationInfoVO集合
      */
     List<ViolationInfoVo> convertVoList(List<ViolationInfo> violationInfoList);
+
+    void autoUpdateViolationInfo();
 }

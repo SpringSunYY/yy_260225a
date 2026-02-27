@@ -1,6 +1,7 @@
 package com.lz.quartz.task;
 
 import com.lz.manage.service.IAppointmentInfoService;
+import com.lz.manage.service.IViolationInfoService;
 import org.springframework.stereotype.Component;
 import com.lz.common.utils.StringUtils;
 
@@ -16,6 +17,9 @@ public class RyTask
 {
     @Resource
     private IAppointmentInfoService appointmentInfoService;
+
+    @Resource
+    private IViolationInfoService violationInfoService;
 
     public void ryMultipleParams(String s, Boolean b, Long l, Double d, Integer i)
     {
@@ -37,5 +41,12 @@ public class RyTask
      */
     public void autoUpdateAppointmentInfo() {
         appointmentInfoService.autoUpdateAppointmentInfo();
+    }
+
+    /**
+     * 更新违规信息
+     */
+    public void autoUpdateViolationInfo() {
+        violationInfoService.autoUpdateViolationInfo();
     }
 }
