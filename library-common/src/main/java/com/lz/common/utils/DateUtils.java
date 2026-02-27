@@ -8,7 +8,9 @@ import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 时间工具类
@@ -321,4 +323,27 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return parseDateToStr(format, getDay(date, day));
     }
 
+
+    /**
+     * 获取指定时间范围的所有日期
+     */
+    public static List<String> getDateRanges(String startDateStr, String endDateStr) {
+        Date startDate = parseDate(startDateStr);
+        Date endDate = parseDate(endDateStr);
+        return getDateRanges(startDate, endDate);
+    }
+
+    public static List<String> getDateRanges(Date startDate, Date endDate) {
+        // 判断时间范围
+        if (startDate != null && endDate != null) {
+            List<String> dateList = new ArrayList<>();
+            // 开始时间小于等于结束时间
+            while (startDate.getTime() <= endDate.getTime()) {
+                dateList.add(parseDateToStr(YYYY_MM_DD, startDate));
+                startDate = DateUtils.getDay(startDate, -1);
+            }
+            return dateList;
+        }
+        return null;
+    }
 }
