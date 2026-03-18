@@ -3,6 +3,7 @@ package com.lz.manage.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lz.common.annotation.DataScope;
 import com.lz.common.core.domain.entity.SysUser;
 import com.lz.common.exception.ServiceException;
 import com.lz.common.utils.DateUtils;
@@ -75,6 +76,7 @@ public class SignInfoServiceImpl extends ServiceImpl<SignInfoMapper, SignInfo> i
      * @return 签到信息
      */
     @Override
+    @DataScope(deptAlias = "tb_sign_info", userAlias = "tb_sign_info")
     public List<SignInfo> selectSignInfoList(SignInfo signInfo) {
         List<SignInfo> signInfos = signInfoMapper.selectSignInfoList(signInfo);
         for (SignInfo info : signInfos) {
