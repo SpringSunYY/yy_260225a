@@ -21,6 +21,7 @@ import com.lz.manage.service.IAppointmentInfoService;
 import com.lz.manage.service.ILibraryInfoService;
 import com.lz.manage.service.ISeatInfoService;
 import com.lz.manage.service.ISignInfoService;
+import com.lz.system.service.ISysConfigService;
 import com.lz.system.service.ISysUserService;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +52,9 @@ public class SignInfoServiceImpl extends ServiceImpl<SignInfoMapper, SignInfo> i
 
     @Resource
     private ISysUserService sysUserService;
+
+    @Resource
+    private ISysConfigService sysConfigService;
     //region mybatis代码
 
     /**
@@ -130,10 +134,17 @@ public class SignInfoServiceImpl extends ServiceImpl<SignInfoMapper, SignInfo> i
         if (!StringUtils.isEmpty(list)) {
             throw new ServiceException("用户已经签到该类型");
         }
+        String signTimeStr = sysConfigService.selectConfigByKey("manage.sign.time");
+        long signTime = 30L;
+        try {
+            signTime = Long.parseLong(signTimeStr);
+        } catch (Exception e) {
+            signTime = 30;
+        }
         //如果预约开始时间已经超过30分钟且是签到
         if (signInfo.getSignType().equals(ManageSignTypeEnum.MANAGE_SIGN_TYPE_1.getValue())
-                && System.currentTimeMillis() - appointmentInfo.getStartTime().getTime() > 30 * 60 * 1000) {
-            throw new ServiceException("预约开始时间已超过30分钟，无法签到");
+                && System.currentTimeMillis() - appointmentInfo.getStartTime().getTime() > signTime * 60 * 1000) {
+            throw new ServiceException(StringUtils.format("预约开始时间已超过{}分钟，无法签到", signTime));
         }
         //如果是签退，必须要有签到
         if (signInfo.getSignType().equals(ManageSignTypeEnum.MANAGE_SIGN_TYPE_2.getValue())) {
