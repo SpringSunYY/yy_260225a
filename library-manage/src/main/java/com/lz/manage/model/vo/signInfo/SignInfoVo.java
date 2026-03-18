@@ -25,12 +25,15 @@ public class SignInfoVo implements Serializable
 
     /** 签到 */
     private Long appointmentId;
+    private String appointmentName;
 
     /** 图书馆 */
     private Long libraryId;
+    private String libraryName;
 
     /** 座位 */
     private Long seatId;
+    private String seatName;
 
     /** 凭证 */
     private String certificateImage;
@@ -43,6 +46,7 @@ public class SignInfoVo implements Serializable
 
     /** 创建人 */
     private Long userId;
+    private String userName;
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")

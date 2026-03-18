@@ -153,6 +153,14 @@
           <el-button
             size="mini"
             type="text"
+            icon="el-icon-add"
+            @click="handleSignInfo(scope.row)"
+            v-hasPermi="['manage:signInfo:add']"
+          >签到
+          </el-button>
+          <el-button
+            size="mini"
+            type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['manage:appointmentInfo:edit']"
@@ -181,50 +189,76 @@
     <!-- 添加或修改预约信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-<!--        <el-form-item label="图书馆" prop="libraryId">-->
-<!--          <el-input v-model="form.libraryId" placeholder="请输入图书馆"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="座位" prop="seatId">-->
-<!--          <el-input v-model="form.seatId" placeholder="请输入座位"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="标题" prop="name">-->
-<!--          <el-input v-model="form.name" placeholder="请输入标题"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="开始时间" prop="startTime">-->
-<!--          <el-date-picker clearable-->
-<!--                          v-model="form.startTime"-->
-<!--                          type="date"-->
-<!--                          value-format="yyyy-MM-dd"-->
-<!--                          placeholder="请选择开始时间">-->
-<!--          </el-date-picker>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="结束时间" prop="endTime">-->
-<!--          <el-date-picker clearable-->
-<!--                          v-model="form.endTime"-->
-<!--                          type="date"-->
-<!--                          value-format="yyyy-MM-dd"-->
-<!--                          placeholder="请选择结束时间">-->
-<!--          </el-date-picker>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="状态" prop="status">-->
-<!--          <el-radio-group v-model="form.status">-->
-<!--            <el-radio-->
-<!--              v-for="dict in dict.type.manage_appointment_status"-->
-<!--              :key="dict.value"-->
-<!--              :label="dict.value"-->
-<!--            >{{ dict.label }}-->
-<!--            </el-radio>-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="图书馆" prop="libraryId">-->
+        <!--          <el-input v-model="form.libraryId" placeholder="请输入图书馆"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="座位" prop="seatId">-->
+        <!--          <el-input v-model="form.seatId" placeholder="请输入座位"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="标题" prop="name">-->
+        <!--          <el-input v-model="form.name" placeholder="请输入标题"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="开始时间" prop="startTime">-->
+        <!--          <el-date-picker clearable-->
+        <!--                          v-model="form.startTime"-->
+        <!--                          type="date"-->
+        <!--                          value-format="yyyy-MM-dd"-->
+        <!--                          placeholder="请选择开始时间">-->
+        <!--          </el-date-picker>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="结束时间" prop="endTime">-->
+        <!--          <el-date-picker clearable-->
+        <!--                          v-model="form.endTime"-->
+        <!--                          type="date"-->
+        <!--                          value-format="yyyy-MM-dd"-->
+        <!--                          placeholder="请选择结束时间">-->
+        <!--          </el-date-picker>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="状态" prop="status">-->
+        <!--          <el-radio-group v-model="form.status">-->
+        <!--            <el-radio-->
+        <!--              v-for="dict in dict.type.manage_appointment_status"-->
+        <!--              :key="dict.value"-->
+        <!--              :label="dict.value"-->
+        <!--            >{{ dict.label }}-->
+        <!--            </el-radio>-->
+        <!--          </el-radio-group>-->
+        <!--        </el-form-item>-->
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
-<!--        <el-form-item label="创建人" prop="userId">-->
-<!--          <el-input v-model="form.userId" placeholder="请输入创建人"/>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="创建人" prop="userId">-->
+        <!--          <el-input v-model="form.userId" placeholder="请输入创建人"/>-->
+        <!--        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 添加或修改签到信息对话框 -->
+    <el-dialog :title="title" :visible.sync="openSign" width="500px" append-to-body>
+      <el-form ref="signInfoForm" :model="signInfo" :rules="signRules" label-width="80px">
+        <el-form-item label="凭证" prop="certificateImage">
+          <image-upload v-model="signInfo.certificateImage"/>
+        </el-form-item>
+        <el-form-item label="签到类型" prop="signType">
+          <el-select v-model="signInfo.signType" placeholder="请选择签到类型">
+            <el-option
+              v-for="dict in dict.type.manage_sign_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="signInfo.remark" type="textarea" placeholder="请输入内容"/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitSignInfo">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
@@ -239,12 +273,25 @@ import {
   listAppointmentInfo,
   updateAppointmentInfo
 } from "@/api/manage/appointmentInfo";
+import {addSignInfo} from "@/api/manage/signInfo";
 
 export default {
   name: "AppointmentInfo",
-  dicts: ['manage_appointment_status'],
+  dicts: ['manage_appointment_status', 'manage_sign_type'],
   data() {
     return {
+      //签到信息
+      openSign: false,
+      signInfo: {},
+      // 表单校验
+      signRules: {
+        certificateImage: [
+          {required: true, message: "凭证不能为空", trigger: "blur"}
+        ],
+        signType: [
+          {required: true, message: "签到类型不能为空", trigger: "change"}
+        ],
+      },
       //表格展示列
       columns: [
         {key: 0, label: '编号', visible: true},
@@ -257,8 +304,8 @@ export default {
         {key: 7, label: '备注', visible: true},
         {key: 8, label: '创建人', visible: true},
         {key: 9, label: '创建时间', visible: true},
-        {key: 10, label: '更新人', visible: true},
-        {key: 11, label: '更新时间', visible: true},
+        {key: 10, label: '更新人', visible: false},
+        {key: 11, label: '更新时间', visible: false},
       ],
       // 遮罩层
       loading: true,
@@ -328,6 +375,23 @@ export default {
     this.getList();
   },
   methods: {
+    handleSignInfo(row) {
+      this.signInfo = {};
+      this.signInfo.appointmentId = row.id;
+      this.title = "签到";
+      this.openSign = true;
+    },
+    submitSignInfo() {
+      this.$refs["signInfoForm"].validate(valid => {
+        if (!valid) {
+          return
+        }
+        addSignInfo(this.signInfo).then(res => {
+          this.$modal.msgSuccess("签到成功");
+          this.openSign = false;
+        })
+      })
+    },
     /** 查询预约信息列表 */
     getList() {
       this.loading = true;
@@ -345,6 +409,7 @@ export default {
     // 取消按钮
     cancel() {
       this.open = false;
+      this.openSign = false;
       this.reset();
     },
     // 表单重置

@@ -9,14 +9,14 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="图书馆" prop="libraryId">
-        <el-input
-          v-model="queryParams.libraryId"
-          placeholder="请输入图书馆"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="图书馆" prop="libraryId">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.libraryId"-->
+<!--          placeholder="请输入图书馆"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item label="签到类型" prop="signType">
         <el-select v-model="queryParams.signType" placeholder="请选择签到类型" clearable>
           <el-option
@@ -97,12 +97,12 @@
     <el-table v-loading="loading" :data="signInfoList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="编号" align="center" v-if="columns[0].visible" prop="id"/>
-      <el-table-column label="签到" :show-overflow-tooltip="true" align="center" v-if="columns[1].visible"
-                       prop="appointmentId"/>
+      <el-table-column label="预约" :show-overflow-tooltip="true" align="center" v-if="columns[1].visible"
+                       prop="appointmentName"/>
       <el-table-column label="图书馆" :show-overflow-tooltip="true" align="center" v-if="columns[2].visible"
-                       prop="libraryId"/>
+                       prop="libraryName"/>
       <el-table-column label="座位" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible"
-                       prop="seatId"/>
+                       prop="seatName"/>
       <el-table-column label="凭证" align="center" v-if="columns[4].visible" prop="certificateImage" width="100">
         <template slot-scope="scope">
           <image-preview :src="scope.row.certificateImage" :width="50" :height="50"/>
@@ -116,7 +116,7 @@
       <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[6].visible"
                        prop="remark"/>
       <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[7].visible"
-                       prop="userId"/>
+                       prop="userName"/>
       <el-table-column label="创建时间" align="center" v-if="columns[8].visible" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
@@ -162,28 +162,28 @@
     <!-- 添加或修改签到信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="签到" prop="appointmentId">
-          <el-input v-model="form.appointmentId" placeholder="请输入签到"/>
-        </el-form-item>
-        <el-form-item label="图书馆" prop="libraryId">
-          <el-input v-model="form.libraryId" placeholder="请输入图书馆"/>
-        </el-form-item>
-        <el-form-item label="座位" prop="seatId">
-          <el-input v-model="form.seatId" placeholder="请输入座位"/>
-        </el-form-item>
-        <el-form-item label="凭证" prop="certificateImage">
-          <image-upload v-model="form.certificateImage"/>
-        </el-form-item>
-        <el-form-item label="签到类型" prop="signType">
-          <el-select v-model="form.signType" placeholder="请选择签到类型">
-            <el-option
-              v-for="dict in dict.type.manage_sign_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
+        <!--        <el-form-item label="预约" prop="appointmentId">-->
+        <!--          <el-input v-model="form.appointmentId" placeholder="请输入签到"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="图书馆" prop="libraryId">-->
+        <!--          <el-input v-model="form.libraryId" placeholder="请输入图书馆"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="座位" prop="seatId">-->
+        <!--          <el-input v-model="form.seatId" placeholder="请输入座位"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="凭证" prop="certificateImage">-->
+        <!--          <image-upload v-model="form.certificateImage"/>-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="签到类型" prop="signType">-->
+        <!--          <el-select v-model="form.signType" placeholder="请选择签到类型">-->
+        <!--            <el-option-->
+        <!--              v-for="dict in dict.type.manage_sign_type"-->
+        <!--              :key="dict.value"-->
+        <!--              :label="dict.label"-->
+        <!--              :value="dict.value"-->
+        <!--            ></el-option>-->
+        <!--          </el-select>-->
+        <!--        </el-form-item>-->
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
@@ -207,7 +207,7 @@ export default {
       //表格展示列
       columns: [
         {key: 0, label: '编号', visible: true},
-        {key: 1, label: '签到', visible: true},
+        {key: 1, label: '预约', visible: true},
         {key: 2, label: '图书馆', visible: true},
         {key: 3, label: '座位', visible: true},
         {key: 4, label: '凭证', visible: true},
@@ -215,8 +215,8 @@ export default {
         {key: 6, label: '备注', visible: true},
         {key: 7, label: '创建人', visible: true},
         {key: 8, label: '创建时间', visible: true},
-        {key: 9, label: '更新人', visible: true},
-        {key: 10, label: '更新时间', visible: true},
+        {key: 9, label: '更新人', visible: false},
+        {key: 10, label: '更新时间', visible: false},
       ],
       // 遮罩层
       loading: true,
