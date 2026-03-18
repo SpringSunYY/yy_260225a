@@ -10,21 +10,17 @@ import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.common.utils.ThrowUtils;
 import com.lz.manage.mapper.AppointmentInfoMapper;
-import com.lz.manage.model.domain.AppointmentInfo;
-import com.lz.manage.model.domain.LibraryInfo;
-import com.lz.manage.model.domain.SeatInfo;
-import com.lz.manage.model.domain.ViolationInfo;
+import com.lz.manage.model.domain.*;
 import com.lz.manage.model.dto.appointmentInfo.AppointmentInfoQuery;
 import com.lz.manage.model.enums.ManageAppointmentStatusEnum;
 import com.lz.manage.model.enums.ManageLibraryStatusEnum;
 import com.lz.manage.model.enums.ManageSeatStatusEnum;
 import com.lz.manage.model.enums.ManageViolationStatusEnum;
 import com.lz.manage.model.vo.appointmentInfo.AppointmentInfoVo;
-import com.lz.manage.service.IAppointmentInfoService;
-import com.lz.manage.service.ILibraryInfoService;
-import com.lz.manage.service.ISeatInfoService;
-import com.lz.manage.service.IViolationInfoService;
+import com.lz.manage.service.*;
+import com.lz.system.service.ISysConfigService;
 import com.lz.system.service.ISysUserService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -55,6 +51,13 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
 
     @Resource
     private IViolationInfoService violationInfoService;
+
+    @Resource
+    @Lazy
+    private ISignInfoService signInfoService;
+
+    @Resource
+    private ISysConfigService sysConfigService;
 
     @Resource
     private TransactionTemplate transactionTemplate;
@@ -232,7 +235,6 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
         Date nowDate = DateUtils.getNowDate();
         queryWrapper.lt(AppointmentInfo::getStartTime, nowDate);
         queryWrapper.gt(AppointmentInfo::getEndTime, nowDate);
-        queryWrapper.eq(AppointmentInfo::getStatus, ManageAppointmentStatusEnum.MANAGE_APPOINTMENT_STATUS_1.getValue());
         List<AppointmentInfo> appointmentInfoList = this.list(queryWrapper);
         ArrayList<SeatInfo> progressSeatList = new ArrayList<>();
         for (AppointmentInfo appointmentInfo : appointmentInfoList) {
@@ -243,10 +245,20 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
             progressSeatList.add(seatInfo);
         }
 
-        //查询进行中但是结束时间小于当前时间的
+        //创建处罚列表，如果不是有两次签到的，那么就创建处罚
+        List<ViolationInfo> violationInfoList = new ArrayList<>();
+        List<Long> progressAppointmentIds = new ArrayList<>();
+        Map<Long, AppointmentInfo> appointmentInfoMap = new HashMap<>();
+        String signTimeStr = sysConfigService.selectConfigByKey("manage.sign.violation");
+        int signTime = 1440;
+        try {
+            signTime = Integer.parseInt(signTimeStr);
+        } catch (Exception e) {
+            signTime = 1440;
+        }
+        //查询进行中但是结束时间小于当前时间的-就是要更新结束的
         queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.lt(AppointmentInfo::getEndTime, nowDate);
-        queryWrapper.eq(AppointmentInfo::getStatus, ManageAppointmentStatusEnum.MANAGE_APPOINTMENT_STATUS_2.getValue());
         List<AppointmentInfo> progressAppointmentInfoList = this.list(queryWrapper);
         List<SeatInfo> endSeatList = new ArrayList<>();
         for (AppointmentInfo appointmentInfo : progressAppointmentInfoList) {
@@ -255,6 +267,39 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
             seatInfo.setId(appointmentInfo.getSeatId());
             seatInfo.setStatus(ManageSeatStatusEnum.MANAGE_SEAT_STATUS_1.getValue());
             endSeatList.add(seatInfo);
+
+            progressAppointmentIds.add(appointmentInfo.getId());
+            appointmentInfoMap.put(appointmentInfo.getId(), appointmentInfo);
+        }
+
+        //查询到所有预约的签到信息
+        if (!progressAppointmentIds.isEmpty()) {
+            LambdaQueryWrapper<SignInfo> signQuery = new LambdaQueryWrapper<>();
+            signQuery.in(SignInfo::getAppointmentId, progressAppointmentIds);
+            List<SignInfo> list = signInfoService.list(signQuery);
+            //把签到信息转为map，键为预约id，值为签到信息数组
+            Map<Long, List<SignInfo>> signInfoMap = list.stream()
+                    .collect(Collectors.groupingBy(SignInfo::getAppointmentId));
+            int finalSignTime = signTime;
+            signInfoMap.forEach((appointmentId, signInfoList) -> {
+                if (signInfoList.isEmpty() || signInfoList.size() < 2) {
+                    AppointmentInfo appointmentInfo = appointmentInfoMap.get(appointmentId);
+                    ViolationInfo violationInfo = new ViolationInfo();
+                    violationInfo.setUserId(appointmentInfo.getUserId());
+                    violationInfo.setLibraryId(appointmentInfo.getLibraryId());
+                    violationInfo.setName("没有签到或者签退");
+                    violationInfo.setCause(StringUtils.format("{},没有签到或者签退", appointmentInfo.getName()));
+                    violationInfo.setStatus(ManageViolationStatusEnum.MANAGE_VIOLATION_STATUS_1.getValue());
+                    Date endTime = appointmentInfo.getEndTime();
+                    violationInfo.setStartTime(endTime);
+                    Date date = DateUtils.addMinutes(endTime, finalSignTime);
+                    violationInfo.setEndTime(date);
+                    violationInfo.setCreateTime(date);
+                    violationInfo.setCreateBy("系统");
+                    violationInfoList.add(violationInfo);
+                }
+            });
+
         }
 
         //批量更新
@@ -263,6 +308,9 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
             appointmentInfoMapper.updateById(progressAppointmentInfoList);
             seatInfoService.updateBatchById(progressSeatList);
             seatInfoService.updateBatchById(endSeatList);
+            if (!violationInfoList.isEmpty()) {
+                violationInfoService.saveBatch(violationInfoList);
+            }
         });
     }
 

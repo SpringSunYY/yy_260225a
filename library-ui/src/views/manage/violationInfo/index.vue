@@ -314,8 +314,8 @@ export default {
         {key: 8, label: '备注', visible: true},
         {key: 9, label: '创建人', visible: true},
         {key: 10, label: '创建时间', visible: true},
-        {key: 11, label: '更新人', visible: true},
-        {key: 12, label: '更新时间', visible: true},
+        {key: 11, label: '更新人', visible: false},
+        {key: 12, label: '更新时间', visible: false},
       ],
       // 遮罩层
       loading: true,
