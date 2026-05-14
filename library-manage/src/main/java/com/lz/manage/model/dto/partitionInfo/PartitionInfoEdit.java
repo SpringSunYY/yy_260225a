@@ -1,11 +1,11 @@
 package com.lz.manage.model.dto.partitionInfo;
 
-import java.io.Serializable;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.manage.model.domain.PartitionInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.manage.model.domain.PartitionInfo;
+
+import java.io.Serializable;
+
 /**
  * 分区信息Vo对象 tb_partition_info
  *
@@ -13,29 +13,47 @@ import com.lz.manage.model.domain.PartitionInfo;
  * @date 2026-05-14
  */
 @Data
-public class PartitionInfoEdit implements Serializable
-{
+public class PartitionInfoEdit implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 编号 */
+    /**
+     * 编号
+     */
     private Long id;
 
-    /** 名称 */
+    /**
+     * 图书馆
+     */
+    private Long libraryId;
+
+    /**
+     * 名称
+     */
     private String name;
 
-    /** 状态 */
+    /**
+     * 状态
+     */
     private String status;
 
-    /** 图片 */
+    /**
+     * 图片
+     */
     private String image;
 
-    /** 描述 */
+    /**
+     * 描述
+     */
     private String description;
 
-    /** 备注 */
+    /**
+     * 备注
+     */
     private String remark;
 
-    /** 创建人 */
+    /**
+     * 创建人
+     */
     private Long userId;
 
     /**
