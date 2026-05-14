@@ -7,3 +7,11 @@ export function appointmentStatistics(query){
     params: query
   })
 }
+
+export function hourStatistics(query){
+  return request({
+    url: '/manage/statistics/hour',
+    method: 'get',
+    params: query
+  })
+}

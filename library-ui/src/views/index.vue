@@ -23,15 +23,17 @@
     <div class="chart-wrapper" v-if="permi">
       <div class="pie-row">
         <el-card class="chart-card" shadow="hover">
-          <PieRoseCharts :chart-data="appointmentStatisticsData" :chart-title="appointmentStatisticsRateName"/>
+          <BarLineZoomCharts :chart-data="appointmentStatisticsData"
+                             :chart-title="appointmentStatisticsName"/>
         </el-card>
         <el-card class="chart-card" shadow="hover">
-          <PieRoseHollowCharts/>
+          <PieRoseCharts :chart-data="appointmentStatisticsData" :chart-title="appointmentStatisticsRateName"/>
         </el-card>
       </div>
       <el-card class="chart-card chart-card-full" shadow="hover">
-        <BarLineZoomCharts style="height: 380px" :chart-data="appointmentStatisticsData"
-                           :chart-title="appointmentStatisticsName"/>
+        <BarRateAutoCarouselCharts style="height: 380px" :chart-data="hourStatisticsData"
+                                   :chart-name="hourStatisticsName"
+                                   :auto-play="false" color-main="rgb(49, 218, 255)"/>
       </el-card>
     </div>
   </div>
@@ -39,14 +41,15 @@
 
 <script>
 import BarLineZoomCharts from "@/components/Echarts/BarLineZoomCharts.vue";
-import {appointmentStatistics} from "@/api/manage/statistics";
+import BarRateAutoCarouselCharts from "@/components/Echarts/BarRateAutoCarouselCharts.vue";
+import {appointmentStatistics, hourStatistics} from "@/api/manage/statistics";
 import {checkPermi} from "@/utils/permission";
 import PieRoseHollowCharts from "@/components/Echarts/PieRoseHollowCharts.vue";
 import PieRoseCharts from "@/components/Echarts/PieRoseCharts.vue";
 
 export default {
   name: "Index",
-  components: {PieRoseCharts, PieRoseHollowCharts, BarLineZoomCharts},
+  components: {PieRoseCharts, PieRoseHollowCharts, BarLineZoomCharts, BarRateAutoCarouselCharts},
   data() {
     return {
       permi: false,
@@ -54,6 +57,8 @@ export default {
       appointmentStatisticsData: [],
       appointmentStatisticsName: '预约分析',
       appointmentStatisticsRateName: '预约占比',
+      hourStatisticsData: [],
+      hourStatisticsName: '热门时段分析',
       monthRange: [],
       queryParams: {}
     };
@@ -85,6 +90,9 @@ export default {
       }
       appointmentStatistics(this.queryParams).then(response => {
         this.appointmentStatisticsData = response.data;
+      });
+      hourStatistics(this.queryParams).then(response => {
+        this.hourStatisticsData = response.data;
       });
     },
     handleQuery() {

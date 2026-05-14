@@ -15,4 +15,9 @@ import java.util.List;
  */
 public interface IStatisticsService {
     List<StatisticsVo> appointmentStatistics(StatisticsRequest request);
+
+    /**
+     * 热门时段分析
+     */
+    List<StatisticsVo> hourStatistics(StatisticsRequest request);
 }

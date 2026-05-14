@@ -37,4 +37,14 @@ public class StatisticsController extends BaseController {
     {
         return success(statisticsService.appointmentStatistics(request));
     }
+
+    /**
+     * 热门时段分析
+     */
+    @PreAuthorize("@ss.hasPermi('manage:statistics')")
+    @GetMapping(value = "/hour")
+    public AjaxResult hourStatistics(StatisticsRequest request)
+    {
+        return success(statisticsService.hourStatistics(request));
+    }
 }
