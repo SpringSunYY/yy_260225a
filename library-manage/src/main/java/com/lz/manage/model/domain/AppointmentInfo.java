@@ -41,6 +41,15 @@ public class AppointmentInfo implements Serializable {
     private String libraryName;
 
     /**
+     * 分区
+     */
+    @Excel(name = "分区", type = Excel.Type.EXPORT)
+    private Long partitionId;
+    @TableField(exist = false)
+    @Excel(name = "分区", type = Excel.Type.EXPORT)
+    private String partitionName;
+
+    /**
      * 座位
      */
     @Excel(name = "座位", type = Excel.Type.IMPORT)

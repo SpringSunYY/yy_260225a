@@ -23,6 +23,11 @@ public class AppointmentInfoEdit implements Serializable
     /** 图书馆 */
     private Long libraryId;
 
+    /**
+     * 分区
+     */
+    private Long partitionId;
+
     /** 座位 */
     private Long seatId;
 

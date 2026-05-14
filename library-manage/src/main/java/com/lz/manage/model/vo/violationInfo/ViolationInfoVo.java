@@ -36,6 +36,11 @@ public class ViolationInfoVo implements Serializable {
     private String userName;
 
     /**
+     * 预约
+     */
+    private Long appointmentId;
+
+    /**
      * 标题
      */
     private String name;

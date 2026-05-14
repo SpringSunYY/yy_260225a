@@ -1,26 +1,40 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lz.manage.mapper.AppointmentInfoMapper">
 
     <resultMap type="AppointmentInfo" id="AppointmentInfoResult">
-        <result property="id"    column="id"    />
-        <result property="libraryId"    column="library_id"    />
-        <result property="seatId"    column="seat_id"    />
-        <result property="name"    column="name"    />
-        <result property="startTime"    column="start_time"    />
-        <result property="endTime"    column="end_time"    />
-        <result property="status"    column="status"    />
-        <result property="remark"    column="remark"    />
-        <result property="userId"    column="user_id"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="updateBy"    column="update_by"    />
-        <result property="updateTime"    column="update_time"    />
+        <result property="id" column="id"/>
+        <result property="libraryId" column="library_id"/>
+        <result property="partitionId" column="partition_id"/>
+        <result property="seatId" column="seat_id"/>
+        <result property="name" column="name"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="userId" column="user_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
     </resultMap>
 
     <sql id="selectAppointmentInfoVo">
-        select id, library_id, seat_id, name, start_time, end_time, status, remark, user_id, create_time, update_by, update_time from tb_appointment_info
+        select id,
+               library_id,
+               partition_id,
+               seat_id,
+               name,
+               start_time,
+               end_time,
+               status,
+               remark,
+               user_id,
+               create_time,
+               update_by,
+               update_time
+        from tb_appointment_info
     </sql>
 
     <select id="selectAppointmentInfoList" parameterType="AppointmentInfo" resultMap="AppointmentInfoResult">
@@ -28,6 +42,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>
             <if test="id != null ">and id = #{id}</if>
             <if test="libraryId != null ">and library_id = #{libraryId}</if>
+            <if test="partitionId != null ">and partition_id = #{partitionId}</if>
             <if test="seatId != null ">and seat_id = #{seatId}</if>
             <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
             <if test="status != null  and status != ''">and status = #{status}</if>
@@ -49,6 +64,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into tb_appointment_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="libraryId != null">library_id,</if>
+            <if test="partitionId != null">partition_id,</if>
             <if test="seatId != null">seat_id,</if>
             <if test="name != null and name != ''">name,</if>
             <if test="startTime != null">start_time,</if>
@@ -59,9 +75,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="libraryId != null">#{libraryId},</if>
+            <if test="partitionId != null">#{partitionId},</if>
             <if test="seatId != null">#{seatId},</if>
             <if test="name != null and name != ''">#{name},</if>
             <if test="startTime != null">#{startTime},</if>
@@ -72,7 +89,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateAppointmentInfo" parameterType="AppointmentInfo">
@@ -94,7 +111,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteAppointmentInfoById" parameterType="Long">
-        delete from tb_appointment_info where id = #{id}
+        delete
+        from tb_appointment_info
+        where id = #{id}
     </delete>
 
     <delete id="deleteAppointmentInfoByIds" parameterType="String">

@@ -12,10 +12,7 @@ import com.lz.common.utils.ThrowUtils;
 import com.lz.manage.mapper.AppointmentInfoMapper;
 import com.lz.manage.model.domain.*;
 import com.lz.manage.model.dto.appointmentInfo.AppointmentInfoQuery;
-import com.lz.manage.model.enums.ManageAppointmentStatusEnum;
-import com.lz.manage.model.enums.ManageLibraryStatusEnum;
-import com.lz.manage.model.enums.ManageSeatStatusEnum;
-import com.lz.manage.model.enums.ManageViolationStatusEnum;
+import com.lz.manage.model.enums.*;
 import com.lz.manage.model.vo.appointmentInfo.AppointmentInfoVo;
 import com.lz.manage.service.*;
 import com.lz.system.service.ISysConfigService;
@@ -62,6 +59,9 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
     @Resource
     private TransactionTemplate transactionTemplate;
 
+    @Resource
+    private IPartitionInfoService partitionInfoService;
+
     //region mybatis代码
 
     /**
@@ -98,6 +98,10 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
             if (StringUtils.isNotNull(seatInfo)) {
                 info.setSeatName(seatInfo.getName());
             }
+            PartitionInfo partitionInfo = partitionInfoService.selectPartitionInfoById(info.getPartitionId());
+            if (StringUtils.isNotNull(partitionInfo)) {
+                info.setPartitionName(partitionInfo.getName());
+            }
         }
         return appointmentInfos;
     }
@@ -132,6 +136,11 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
                         || seatInfo.getStatus().equals(ManageSeatStatusEnum.MANAGE_SEAT_STATUS_0.getValue()),
                 "座位不存在或者不可预约"
         );
+        //查询馆的分区
+        PartitionInfo partitionInfo = partitionInfoService.selectPartitionInfoById(seatInfo.getPartitionId());
+        ThrowUtils.throwIf(StringUtils.isNull(partitionInfo)
+                || partitionInfo.getStatus().equals(ManagePartitionStatusEnum.MANAGE_PARTITION_STATUS_0.getValue()), "分区不存在或者不可预约");
+        appointmentInfo.setPartitionId(partitionInfo.getId());
         //判断是否有违规
         List<ViolationInfo> list = violationInfoService.list(new LambdaQueryWrapper<ViolationInfo>()
                 .eq(ViolationInfo::getUserId, SecurityUtils.getUserId())
@@ -280,13 +289,30 @@ public class AppointmentInfoServiceImpl extends ServiceImpl<AppointmentInfoMappe
             //把签到信息转为map，键为预约id，值为签到信息数组
             Map<Long, List<SignInfo>> signInfoMap = list.stream()
                     .collect(Collectors.groupingBy(SignInfo::getAppointmentId));
+
+            //查询已有违规记录的预约id，避免重复创建
+            LambdaQueryWrapper<ViolationInfo> violationQuery = new LambdaQueryWrapper<>();
+            violationQuery.in(ViolationInfo::getAppointmentId, progressAppointmentIds);
+            List<ViolationInfo> existViolationList = violationInfoService.list(violationQuery);
+            Set<Long> existViolationKeys = existViolationList.stream()
+                    .map(ViolationInfo::getAppointmentId)
+                    .collect(Collectors.toSet());
+
             int finalSignTime = signTime;
             signInfoMap.forEach((appointmentId, signInfoList) -> {
                 if (signInfoList.isEmpty() || signInfoList.size() < 2) {
                     AppointmentInfo appointmentInfo = appointmentInfoMap.get(appointmentId);
+                    if (appointmentInfo == null) {
+                        return;
+                    }
+                    //检查该预约是否已有违规记录，有则跳过
+                    if (existViolationKeys.contains(appointmentId)) {
+                        return;
+                    }
                     ViolationInfo violationInfo = new ViolationInfo();
                     violationInfo.setUserId(appointmentInfo.getUserId());
                     violationInfo.setLibraryId(appointmentInfo.getLibraryId());
+                    violationInfo.setAppointmentId(appointmentInfo.getId());
                     violationInfo.setName("没有签到或者签退");
                     violationInfo.setCause(StringUtils.format("{},没有签到或者签退", appointmentInfo.getName()));
                     violationInfo.setStatus(ManageViolationStatusEnum.MANAGE_VIOLATION_STATUS_1.getValue());

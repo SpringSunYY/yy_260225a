@@ -50,6 +50,12 @@ public class ViolationInfo implements Serializable {
     private String userName;
 
     /**
+     * 预约
+     */
+    @Excel(name = "预约")
+    private Long appointmentId;
+
+    /**
      * 标题
      */
     @Excel(name = "标题")

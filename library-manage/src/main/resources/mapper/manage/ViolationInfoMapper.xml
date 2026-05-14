@@ -8,6 +8,7 @@
         <result property="id" column="id"/>
         <result property="libraryId" column="library_id"/>
         <result property="userId" column="user_id"/>
+        <result property="appointmentId" column="appointment_id"/>
         <result property="name" column="name"/>
         <result property="cause" column="cause"/>
         <result property="startTime" column="start_time"/>
@@ -24,6 +25,7 @@
         select id,
                library_id,
                user_id,
+               appointment_id,
                name,
                cause,
                start_time,
@@ -62,6 +64,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="libraryId != null">library_id,</if>
             <if test="userId != null">user_id,</if>
+            <if test="appointmentId != null">appointment_id,</if>
             <if test="name != null and name != ''">name,</if>
             <if test="cause != null">cause,</if>
             <if test="startTime != null">start_time,</if>
@@ -76,6 +79,7 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="libraryId != null">#{libraryId},</if>
             <if test="userId != null">#{userId},</if>
+            <if test="appointmentId != null">#{appointmentId},</if>
             <if test="name != null and name != ''">#{name},</if>
             <if test="cause != null">#{cause},</if>
             <if test="startTime != null">#{startTime},</if>
@@ -94,6 +98,7 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="libraryId != null">library_id = #{libraryId},</if>
             <if test="userId != null">user_id = #{userId},</if>
+            <if test="appointmentId != null">appointment_id = #{appointmentId},</if>
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="cause != null">cause = #{cause},</if>
             <if test="startTime != null">start_time = #{startTime},</if>

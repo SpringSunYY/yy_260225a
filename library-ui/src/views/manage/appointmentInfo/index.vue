@@ -114,36 +114,38 @@
       <el-table-column label="编号" align="center" v-if="columns[0].visible" prop="id"/>
       <el-table-column label="图书馆" :show-overflow-tooltip="true" align="center" v-if="columns[1].visible"
                        prop="libraryName"/>
-      <el-table-column label="座位" :show-overflow-tooltip="true" align="center" v-if="columns[2].visible"
+      <el-table-column label="分区" :show-overflow-tooltip="true" align="center" v-if="columns[2].visible"
+                       prop="partitionName"/>
+      <el-table-column label="座位" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible"
                        prop="seatName"/>
-      <el-table-column label="标题" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible" prop="name"/>
-      <el-table-column label="开始时间" align="center" v-if="columns[4].visible" prop="startTime" width="180">
+      <el-table-column label="标题" :show-overflow-tooltip="true" align="center" v-if="columns[4].visible" prop="name"/>
+      <el-table-column label="开始时间" align="center" v-if="columns[5].visible" prop="startTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.startTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="结束时间" align="center" v-if="columns[5].visible" prop="endTime" width="180">
+      <el-table-column label="结束时间" align="center" v-if="columns[6].visible" prop="endTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.endTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" v-if="columns[6].visible" prop="status">
+      <el-table-column label="状态" align="center" v-if="columns[7].visible" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.manage_appointment_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[7].visible"
+      <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[8].visible"
                        prop="remark"/>
-      <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[8].visible"
+      <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[9].visible"
                        prop="userName"/>
-      <el-table-column label="创建时间" align="center" v-if="columns[9].visible" prop="createTime" width="180">
+      <el-table-column label="创建时间" align="center" v-if="columns[10].visible" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新人" :show-overflow-tooltip="true" align="center" v-if="columns[10].visible"
+      <el-table-column label="更新人" :show-overflow-tooltip="true" align="center" v-if="columns[11].visible"
                        prop="updateBy"/>
-      <el-table-column label="更新时间" align="center" v-if="columns[11].visible" prop="updateTime" width="180">
+      <el-table-column label="更新时间" align="center" v-if="columns[12].visible" prop="updateTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
         </template>
@@ -296,16 +298,17 @@ export default {
       columns: [
         {key: 0, label: '编号', visible: true},
         {key: 1, label: '图书馆', visible: true},
-        {key: 2, label: '座位', visible: true},
-        {key: 3, label: '标题', visible: true},
-        {key: 4, label: '开始时间', visible: true},
-        {key: 5, label: '结束时间', visible: true},
-        {key: 6, label: '状态', visible: true},
-        {key: 7, label: '备注', visible: true},
-        {key: 8, label: '创建人', visible: true},
-        {key: 9, label: '创建时间', visible: true},
-        {key: 10, label: '更新人', visible: false},
-        {key: 11, label: '更新时间', visible: false},
+        {key: 2, label: '分区', visible: true},
+        {key: 3, label: '座位', visible: true},
+        {key: 4, label: '标题', visible: true},
+        {key: 5, label: '开始时间', visible: true},
+        {key: 6, label: '结束时间', visible: true},
+        {key: 7, label: '状态', visible: true},
+        {key: 8, label: '备注', visible: true},
+        {key: 9, label: '创建人', visible: true},
+        {key: 10, label: '创建时间', visible: true},
+        {key: 11, label: '更新人', visible: false},
+        {key: 12, label: '更新时间', visible: false},
       ],
       // 遮罩层
       loading: true,

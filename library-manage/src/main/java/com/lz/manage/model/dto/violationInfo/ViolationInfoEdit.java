@@ -34,6 +34,11 @@ public class ViolationInfoEdit implements Serializable {
     private Long userId;
 
     /**
+     * 预约
+     */
+    private Long appointmentId;
+
+    /**
      * 标题
      */
     private String name;

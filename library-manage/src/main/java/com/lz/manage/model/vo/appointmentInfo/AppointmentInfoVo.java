@@ -30,6 +30,12 @@ public class AppointmentInfoVo implements Serializable {
     private String libraryName;
 
     /**
+     * 分区
+     */
+    private Long partitionId;
+    private String partitionName;
+
+    /**
      * 座位
      */
     private Long seatId;

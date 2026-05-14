@@ -9,14 +9,14 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-<!--      <el-form-item label="图书馆" prop="libraryId">-->
-<!--        <el-input-->
-<!--          v-model="queryParams.libraryId"-->
-<!--          placeholder="请输入图书馆"-->
-<!--          clearable-->
-<!--          @keyup.enter.native="handleQuery"-->
-<!--        />-->
-<!--      </el-form-item>-->
+      <!--      <el-form-item label="图书馆" prop="libraryId">-->
+      <!--        <el-input-->
+      <!--          v-model="queryParams.libraryId"-->
+      <!--          placeholder="请输入图书馆"-->
+      <!--          clearable-->
+      <!--          @keyup.enter.native="handleQuery"-->
+      <!--        />-->
+      <!--      </el-form-item>-->
       <el-form-item label="签到类型" prop="signType">
         <el-select v-model="queryParams.signType" placeholder="请选择签到类型" clearable>
           <el-option
@@ -101,30 +101,32 @@
                        prop="appointmentName"/>
       <el-table-column label="图书馆" :show-overflow-tooltip="true" align="center" v-if="columns[2].visible"
                        prop="libraryName"/>
-      <el-table-column label="座位" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible"
+      <el-table-column label="分区" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible"
+                       prop="partitionName"/>
+      <el-table-column label="座位" :show-overflow-tooltip="true" align="center" v-if="columns[4].visible"
                        prop="seatName"/>
-      <el-table-column label="凭证" align="center" v-if="columns[4].visible" prop="certificateImage" width="100">
+      <el-table-column label="凭证" align="center" v-if="columns[5].visible" prop="certificateImage" width="100">
         <template slot-scope="scope">
           <image-preview :src="scope.row.certificateImage" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="签到类型" align="center" v-if="columns[5].visible" prop="signType">
+      <el-table-column label="签到类型" align="center" v-if="columns[6].visible" prop="signType">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.manage_sign_type" :value="scope.row.signType"/>
         </template>
       </el-table-column>
-      <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[6].visible"
+      <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[7].visible"
                        prop="remark"/>
-      <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[7].visible"
+      <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[8].visible"
                        prop="userName"/>
-      <el-table-column label="创建时间" align="center" v-if="columns[8].visible" prop="createTime" width="180">
+      <el-table-column label="创建时间" align="center" v-if="columns[9].visible" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新人" :show-overflow-tooltip="true" align="center" v-if="columns[9].visible"
+      <el-table-column label="更新人" :show-overflow-tooltip="true" align="center" v-if="columns[10].visible"
                        prop="updateBy"/>
-      <el-table-column label="更新时间" align="center" v-if="columns[10].visible" prop="updateTime" width="180">
+      <el-table-column label="更新时间" align="center" v-if="columns[11].visible" prop="updateTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
         </template>
@@ -209,14 +211,15 @@ export default {
         {key: 0, label: '编号', visible: true},
         {key: 1, label: '预约', visible: true},
         {key: 2, label: '图书馆', visible: true},
-        {key: 3, label: '座位', visible: true},
-        {key: 4, label: '凭证', visible: true},
-        {key: 5, label: '签到类型', visible: true},
-        {key: 6, label: '备注', visible: true},
-        {key: 7, label: '创建人', visible: true},
-        {key: 8, label: '创建时间', visible: true},
-        {key: 9, label: '更新人', visible: false},
-        {key: 10, label: '更新时间', visible: false},
+        {key: 3, label: '分区', visible: true},
+        {key: 4, label: '座位', visible: true},
+        {key: 5, label: '凭证', visible: true},
+        {key: 6, label: '签到类型', visible: true},
+        {key: 7, label: '备注', visible: true},
+        {key: 8, label: '创建人', visible: true},
+        {key: 9, label: '创建时间', visible: true},
+        {key: 10, label: '更新人', visible: false},
+        {key: 11, label: '更新时间', visible: false},
       ],
       // 遮罩层
       loading: true,

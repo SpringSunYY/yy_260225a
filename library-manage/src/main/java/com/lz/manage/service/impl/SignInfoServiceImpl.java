@@ -10,18 +10,12 @@ import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
 import com.lz.manage.mapper.SignInfoMapper;
-import com.lz.manage.model.domain.AppointmentInfo;
-import com.lz.manage.model.domain.LibraryInfo;
-import com.lz.manage.model.domain.SeatInfo;
-import com.lz.manage.model.domain.SignInfo;
+import com.lz.manage.model.domain.*;
 import com.lz.manage.model.dto.signInfo.SignInfoQuery;
 import com.lz.manage.model.enums.ManageAppointmentStatusEnum;
 import com.lz.manage.model.enums.ManageSignTypeEnum;
 import com.lz.manage.model.vo.signInfo.SignInfoVo;
-import com.lz.manage.service.IAppointmentInfoService;
-import com.lz.manage.service.ILibraryInfoService;
-import com.lz.manage.service.ISeatInfoService;
-import com.lz.manage.service.ISignInfoService;
+import com.lz.manage.service.*;
 import com.lz.system.service.ISysConfigService;
 import com.lz.system.service.ISysUserService;
 import org.springframework.stereotype.Service;
@@ -56,6 +50,9 @@ public class SignInfoServiceImpl extends ServiceImpl<SignInfoMapper, SignInfo> i
 
     @Resource
     private ISysConfigService sysConfigService;
+
+    @Resource
+    private IPartitionInfoService partitionInfoService;
     //region mybatis代码
 
     /**
@@ -95,6 +92,10 @@ public class SignInfoServiceImpl extends ServiceImpl<SignInfoMapper, SignInfo> i
             AppointmentInfo appointmentInfo = appointmentInfoService.selectAppointmentInfoById(info.getAppointmentId());
             if (StringUtils.isNotNull(appointmentInfo)) {
                 info.setAppointmentName(appointmentInfo.getName());
+            }
+            PartitionInfo partitionInfo = partitionInfoService.selectPartitionInfoById(info.getPartitionId());
+            if (StringUtils.isNotNull(partitionInfo)) {
+                info.setPartitionName(partitionInfo.getName());
             }
         }
         return signInfos;
@@ -165,6 +166,7 @@ public class SignInfoServiceImpl extends ServiceImpl<SignInfoMapper, SignInfo> i
             appointmentInfoService.updateById(appointmentInfo);
         }
 
+        signInfo.setPartitionId(appointmentInfo.getPartitionId());
         signInfo.setUserId(userId);
         signInfo.setUpdateTime(DateUtils.getNowDate());
         signInfo.setSeatId(appointmentInfo.getSeatId());

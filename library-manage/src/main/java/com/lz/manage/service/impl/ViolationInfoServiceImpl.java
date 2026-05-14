@@ -166,15 +166,28 @@ public class ViolationInfoServiceImpl extends ServiceImpl<ViolationInfoMapper, V
 
     @Override
     public void autoUpdateViolationInfo() {
-        //获取到结束时间小于当前时间的违规信息且状态为进行中的
+        // 查询所有状态为"处罚中"的违规记录
         LambdaQueryWrapper<ViolationInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ViolationInfo::getStatus, ManageViolationStatusEnum.MANAGE_VIOLATION_STATUS_1.getValue());
-        queryWrapper.le(ViolationInfo::getEndTime, DateUtils.getNowDate());
         List<ViolationInfo> violationInfoList = this.list(queryWrapper);
-        for (ViolationInfo violationInfo : violationInfoList) {
-            violationInfo.setStatus(ManageViolationStatusEnum.MANAGE_VIOLATION_STATUS_2.getValue());
+        if (violationInfoList == null || violationInfoList.isEmpty()) {
+            return;
         }
-        violationInfoMapper.updateById(violationInfoList);
+
+        Date nowDate = DateUtils.getNowDate();
+        List<ViolationInfo> needUpdateList = new ArrayList<>();
+        for (ViolationInfo violationInfo : violationInfoList) {
+            Date endTime = violationInfo.getEndTime();
+            // 结束时间不为空且已到期的，更新为"处罚结束"
+            if (endTime != null && endTime.compareTo(nowDate) <= 0) {
+                violationInfo.setStatus(ManageViolationStatusEnum.MANAGE_VIOLATION_STATUS_2.getValue());
+                needUpdateList.add(violationInfo);
+            }
+        }
+
+        if (!needUpdateList.isEmpty()) {
+            this.updateBatchById(needUpdateList);
+        }
     }
 
 }

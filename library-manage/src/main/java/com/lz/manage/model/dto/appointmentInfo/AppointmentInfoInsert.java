@@ -25,6 +25,11 @@ public class AppointmentInfoInsert implements Serializable {
     private Long libraryId;
 
     /**
+     * 分区
+     */
+    private Long partitionId;
+
+    /**
      * 座位
      */
     private Long seatId;

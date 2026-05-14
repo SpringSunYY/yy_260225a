@@ -1,14 +1,13 @@
 package com.lz.manage.model.vo.signInfo;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import com.lz.common.annotation.Excel;
-import org.springframework.beans.BeanUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lz.manage.model.domain.SignInfo;
+import lombok.Data;
+import org.springframework.beans.BeanUtils;
+
+import java.io.Serializable;
+import java.util.Date;
+
 /**
  * 签到信息Vo对象 tb_sign_info
  *
@@ -16,51 +15,79 @@ import com.lz.manage.model.domain.SignInfo;
  * @date 2026-03-18
  */
 @Data
-public class SignInfoVo implements Serializable
-{
+public class SignInfoVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 编号 */
+    /**
+     * 编号
+     */
     private Long id;
 
-    /** 签到 */
+    /**
+     * 签到
+     */
     private Long appointmentId;
     private String appointmentName;
 
-    /** 图书馆 */
+    /**
+     * 图书馆
+     */
     private Long libraryId;
     private String libraryName;
 
-    /** 座位 */
+    /**
+     * 分区
+     */
+    private Long partitionId;
+    private String partitionName;
+
+
+    /**
+     * 座位
+     */
     private Long seatId;
     private String seatName;
 
-    /** 凭证 */
+    /**
+     * 凭证
+     */
     private String certificateImage;
 
-    /** 签到类型 */
+    /**
+     * 签到类型
+     */
     private String signType;
 
-    /** 备注 */
+    /**
+     * 备注
+     */
     private String remark;
 
-    /** 创建人 */
+    /**
+     * 创建人
+     */
     private Long userId;
     private String userName;
 
-    /** 创建时间 */
+    /**
+     * 创建时间
+     */
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
 
-    /** 更新人 */
+    /**
+     * 更新人
+     */
     private String updateBy;
 
-    /** 更新时间 */
+    /**
+     * 更新时间
+     */
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date updateTime;
 
 
-     /**
+    /**
      * 对象转封装类
      *
      * @param signInfo SignInfo实体对象
