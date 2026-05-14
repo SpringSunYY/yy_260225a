@@ -21,7 +21,18 @@
       </el-form>
     </div>
     <div class="chart-wrapper" v-if="permi">
-      <BarLineZoomCharts :chart-data="appointmentStatisticsData" :chart-title="appointmentStatisticsName"/>
+      <div class="pie-row">
+        <el-card class="chart-card" shadow="hover">
+          <PieRoseCharts :chart-data="appointmentStatisticsData" :chart-title="appointmentStatisticsRateName"/>
+        </el-card>
+        <el-card class="chart-card" shadow="hover">
+          <PieRoseHollowCharts/>
+        </el-card>
+      </div>
+      <el-card class="chart-card chart-card-full" shadow="hover">
+        <BarLineZoomCharts style="height: 380px" :chart-data="appointmentStatisticsData"
+                           :chart-title="appointmentStatisticsName"/>
+      </el-card>
     </div>
   </div>
 </template>
@@ -30,16 +41,19 @@
 import BarLineZoomCharts from "@/components/Echarts/BarLineZoomCharts.vue";
 import {appointmentStatistics} from "@/api/manage/statistics";
 import {checkPermi} from "@/utils/permission";
+import PieRoseHollowCharts from "@/components/Echarts/PieRoseHollowCharts.vue";
+import PieRoseCharts from "@/components/Echarts/PieRoseCharts.vue";
 
 export default {
   name: "Index",
-  components: {BarLineZoomCharts},
+  components: {PieRoseCharts, PieRoseHollowCharts, BarLineZoomCharts},
   data() {
     return {
       permi: false,
       title: process.env.VUE_APP_TITLE,
       appointmentStatisticsData: [],
       appointmentStatisticsName: '预约分析',
+      appointmentStatisticsRateName: '预约占比',
       monthRange: [],
       queryParams: {}
     };
@@ -101,9 +115,35 @@ export default {
 
   .chart-wrapper {
     background: #fff;
-    padding: 16px 16px 0;
+    padding: 16px;
     margin-bottom: 32px;
-    height: 50vh;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .pie-row {
+      display: flex;
+      gap: 16px;
+
+      .chart-card {
+        flex: 1;
+        min-width: 0;
+        height: 380px;
+
+        ::v-deep .el-card__body {
+          height: 100%;
+        }
+      }
+    }
+
+    .chart-card-full {
+      flex: 1;
+      min-width: 0;
+
+      ::v-deep .el-card__body {
+        height: 100%;
+      }
+    }
   }
 
 }
