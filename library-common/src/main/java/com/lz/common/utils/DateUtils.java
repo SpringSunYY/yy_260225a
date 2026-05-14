@@ -346,4 +346,52 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         }
         return null;
     }
+
+    /**
+     * 根据 yyyyMM 格式的年月字符串获取该月的第一天 00:00:00
+     */
+    public static String getMonthFirstDay(String yearMonth) {
+        if (yearMonth == null || yearMonth.length() != 6) {
+            return null;
+        }
+        return yearMonth.substring(0, 4) + "-" + yearMonth.substring(4, 6) + "-01 00:00:00";
+    }
+
+    /**
+     * 根据 yyyyMM 格式的年月字符串获取该月的最后一天 23:59:59
+     */
+    public static String getMonthLastDay(String yearMonth) {
+        if (yearMonth == null || yearMonth.length() != 6) {
+            return null;
+        }
+        int year = Integer.parseInt(yearMonth.substring(0, 4));
+        int month = Integer.parseInt(yearMonth.substring(4, 6));
+        LocalDate lastDay = LocalDate.of(year, month, 1).with(TemporalAdjusters.lastDayOfMonth());
+        return lastDay + " 23:59:59";
+    }
+
+    /**
+     * 获取指定时间范围的所有年月（yyyy-MM 格式）
+     */
+    public static List<String> getMonthRanges(String startYearMonth, String endYearMonth) {
+        if (startYearMonth == null || endYearMonth == null || startYearMonth.length() != 6 || endYearMonth.length() != 6) {
+            return null;
+        }
+        int startYear = Integer.parseInt(startYearMonth.substring(0, 4));
+        int startMonth = Integer.parseInt(startYearMonth.substring(4, 6));
+        int endYear = Integer.parseInt(endYearMonth.substring(0, 4));
+        int endMonth = Integer.parseInt(endYearMonth.substring(4, 6));
+
+        List<String> monthList = new ArrayList<>();
+        int cy = startYear, cm = startMonth;
+        while (cy < endYear || (cy == endYear && cm <= endMonth)) {
+            monthList.add(String.format("%04d-%02d", cy, cm));
+            cm++;
+            if (cm > 12) {
+                cm = 1;
+                cy++;
+            }
+        }
+        return monthList;
+    }
 }
