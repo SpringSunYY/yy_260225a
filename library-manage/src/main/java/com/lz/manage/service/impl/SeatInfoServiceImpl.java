@@ -6,12 +6,15 @@ import com.lz.common.core.domain.entity.SysUser;
 import com.lz.common.utils.DateUtils;
 import com.lz.common.utils.SecurityUtils;
 import com.lz.common.utils.StringUtils;
+import com.lz.common.utils.ThrowUtils;
 import com.lz.manage.mapper.SeatInfoMapper;
 import com.lz.manage.model.domain.LibraryInfo;
+import com.lz.manage.model.domain.PartitionInfo;
 import com.lz.manage.model.domain.SeatInfo;
 import com.lz.manage.model.dto.seatInfo.SeatInfoQuery;
 import com.lz.manage.model.vo.seatInfo.SeatInfoVo;
 import com.lz.manage.service.ILibraryInfoService;
+import com.lz.manage.service.IPartitionInfoService;
 import com.lz.manage.service.ISeatInfoService;
 import com.lz.system.service.ISysUserService;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,9 @@ public class SeatInfoServiceImpl extends ServiceImpl<SeatInfoMapper, SeatInfo> i
 
     @Resource
     private ILibraryInfoService libraryInfoService;
+
+    @Resource
+    private IPartitionInfoService partitionInfoService;
 
     //region mybatis代码
 
@@ -69,6 +75,10 @@ public class SeatInfoServiceImpl extends ServiceImpl<SeatInfoMapper, SeatInfo> i
             if (StringUtils.isNotNull(libraryInfo)) {
                 info.setLibraryName(libraryInfo.getName());
             }
+            PartitionInfo partitionInfo = partitionInfoService.selectPartitionInfoById(info.getPartitionId());
+            if (StringUtils.isNotNull(partitionInfo)) {
+                info.setPartitionName(partitionInfo.getName());
+            }
         }
         return seatInfos;
     }
@@ -81,9 +91,20 @@ public class SeatInfoServiceImpl extends ServiceImpl<SeatInfoMapper, SeatInfo> i
      */
     @Override
     public int insertSeatInfo(SeatInfo seatInfo) {
+        checkSeatInfo(seatInfo);
         seatInfo.setUserId(SecurityUtils.getUserId());
         seatInfo.setCreateTime(DateUtils.getNowDate());
         return seatInfoMapper.insertSeatInfo(seatInfo);
+    }
+
+    private void checkSeatInfo(SeatInfo seatInfo) {
+        //先查询图书馆
+        LibraryInfo libraryInfo = libraryInfoService.selectLibraryInfoById(seatInfo.getLibraryId());
+        ThrowUtils.throwIf(StringUtils.isNull(libraryInfo), "图书馆不存在");
+        //查询分区
+        PartitionInfo partitionInfo = partitionInfoService.selectPartitionInfoById(seatInfo.getPartitionId());
+        ThrowUtils.throwIf(StringUtils.isNull(partitionInfo), "分区不存在");
+        ThrowUtils.throwIf(partitionInfo.getLibraryId().longValue() != libraryInfo.getId().longValue(), "分区不属于该图书馆");
     }
 
     /**
@@ -94,6 +115,7 @@ public class SeatInfoServiceImpl extends ServiceImpl<SeatInfoMapper, SeatInfo> i
      */
     @Override
     public int updateSeatInfo(SeatInfo seatInfo) {
+        checkSeatInfo(seatInfo);
         seatInfo.setUpdateBy(SecurityUtils.getUsername());
         seatInfo.setUpdateTime(DateUtils.getNowDate());
         return seatInfoMapper.updateSeatInfo(seatInfo);

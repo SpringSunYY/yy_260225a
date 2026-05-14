@@ -26,6 +26,23 @@
           </el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="分区" prop="partitionId">
+        <el-select
+          v-model="queryParams.partitionId"
+          filterable
+          remote
+          reserve-keyword
+          placeholder="请输入分区名称"
+          :remote-method="remoteGetPartitionList"
+          :loading="partitionLoading">
+          <el-option
+            v-for="item in partitionList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="名称" prop="name">
         <el-input
           v-model="queryParams.name"
@@ -116,31 +133,32 @@
       <el-table-column label="编号" align="center" v-if="columns[0].visible" prop="id"/>
       <el-table-column label="图书馆" :show-overflow-tooltip="true" align="center" v-if="columns[1].visible"
                        prop="libraryName"/>
-      <el-table-column label="名称" :show-overflow-tooltip="true" align="center" v-if="columns[2].visible" prop="name"/>
-      <el-table-column label="状态" align="center" v-if="columns[3].visible" prop="status">
+      <el-table-column label="分区" align="center" v-if="columns[2].visible" prop="partitionName"/>
+      <el-table-column label="名称" :show-overflow-tooltip="true" align="center" v-if="columns[3].visible" prop="name"/>
+      <el-table-column label="状态" align="center" v-if="columns[4].visible" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.manage_seat_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="图片" align="center" v-if="columns[4].visible" prop="image" width="100">
+      <el-table-column label="图片" align="center" v-if="columns[5].visible" prop="image" width="100">
         <template slot-scope="scope">
           <image-preview :src="scope.row.image" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="描述" :show-overflow-tooltip="true" align="center" v-if="columns[5].visible"
+      <el-table-column label="描述" :show-overflow-tooltip="true" align="center" v-if="columns[6].visible"
                        prop="description"/>
-      <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[6].visible"
+      <el-table-column label="备注" :show-overflow-tooltip="true" align="center" v-if="columns[7].visible"
                        prop="remark"/>
-      <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[7].visible"
+      <el-table-column label="创建人" :show-overflow-tooltip="true" align="center" v-if="columns[8].visible"
                        prop="userName"/>
       <el-table-column label="创建时间" align="center" v-if="columns[8].visible" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新人" :show-overflow-tooltip="true" align="center" v-if="columns[9].visible"
+      <el-table-column label="更新人" :show-overflow-tooltip="true" align="center" v-if="columns[10].visible"
                        prop="updateBy"/>
-      <el-table-column label="更新时间" align="center" v-if="columns[10].visible" prop="updateTime" width="180">
+      <el-table-column label="更新时间" align="center" v-if="columns[11].visible" prop="updateTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
         </template>
@@ -194,9 +212,27 @@
             reserve-keyword
             placeholder="请输入图书馆名称"
             :remote-method="remoteGetLibraryList"
-            :loading="libraryLoading">
+            :loading="libraryLoading"
+            @change="handleLibraryChange">
             <el-option
               v-for="item in libraryList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="分区" prop="partitionId">
+          <el-select
+            v-model="form.partitionId"
+            filterable
+            remote
+            reserve-keyword
+            placeholder="请输入分区名称"
+            :remote-method="remoteGetPartitionList"
+            :loading="partitionLoading">
+            <el-option
+              v-for="item in partitionList"
               :key="item.id"
               :label="item.name"
               :value="item.id">
@@ -273,6 +309,7 @@
 import {addSeatInfo, delSeatInfo, getSeatInfo, listSeatInfo, updateSeatInfo} from "@/api/manage/seatInfo";
 import {listLibraryInfo} from "@/api/manage/libraryInfo";
 import {addAppointmentInfo} from "@/api/manage/appointmentInfo";
+import {listPartitionInfo} from "@/api/manage/partitionInfo";
 
 export default {
   name: "SeatInfo",
@@ -301,19 +338,29 @@ export default {
         pageSize: 30,
         name: null
       },
+      //图书馆信息
+      partitionList: [],
+      partitionLoading: false,
+      partitionQuery: {
+        pageNum: 1,
+        pageSize: 30,
+        name: null,
+        libraryId: null
+      },
       //表格展示列
       columns: [
         {key: 0, label: '编号', visible: true},
         {key: 1, label: '图书馆', visible: true},
-        {key: 2, label: '名称', visible: true},
-        {key: 3, label: '状态', visible: true},
-        {key: 4, label: '图片', visible: true},
-        {key: 5, label: '描述', visible: true},
-        {key: 6, label: '备注', visible: true},
-        {key: 7, label: '创建人', visible: true},
-        {key: 8, label: '创建时间', visible: true},
-        {key: 9, label: '更新人', visible: false},
-        {key: 10, label: '更新时间', visible: false},
+        {key: 2, label: '分区', visible: true},
+        {key: 3, label: '名称', visible: true},
+        {key: 4, label: '状态', visible: true},
+        {key: 5, label: '图片', visible: true},
+        {key: 6, label: '描述', visible: true},
+        {key: 7, label: '备注', visible: true},
+        {key: 8, label: '创建人', visible: true},
+        {key: 9, label: '创建时间', visible: true},
+        {key: 10, label: '更新人', visible: false},
+        {key: 11, label: '更新时间', visible: false},
       ],
       // 遮罩层
       loading: true,
@@ -341,6 +388,7 @@ export default {
         pageSize: 10,
         id: null,
         libraryId: null,
+        partitionId: null,
         name: null,
         status: null,
         createTime: null,
@@ -372,6 +420,7 @@ export default {
   created() {
     this.getList();
     this.getLibraryList();
+    this.getPartitionList()
   },
   methods: {
     /** 打开添加或修改预约信息对话框 */
@@ -403,6 +452,25 @@ export default {
       this.libraryQuery.name = query;
       this.getLibraryList();
     },
+    /** 获取分区信息*/
+    getPartitionList() {
+      this.partitionLoading = true
+      listPartitionInfo(this.partitionQuery).then(response => {
+        this.partitionList = response.rows;
+        this.partitionLoading = false
+      })
+    },
+    /** 远程获取分区信息 */
+    remoteGetPartitionList(query) {
+      this.partitionQuery.name = query;
+      this.getPartitionList();
+    },
+    /** 图书馆变更时重新查询分区列表 */
+    handleLibraryChange(libraryId) {
+      this.form.partitionId = null;
+      this.partitionQuery.libraryId = libraryId;
+      this.getPartitionList();
+    },
     /** 查询座位信息列表 */
     getList() {
       this.loading = true;
@@ -428,6 +496,7 @@ export default {
       this.form = {
         id: null,
         libraryId: null,
+        partitionId: null,
         name: null,
         status: null,
         image: null,

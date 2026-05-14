@@ -1,11 +1,11 @@
 package com.lz.manage.model.dto.seatInfo;
 
-import java.io.Serializable;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.lz.manage.model.domain.SeatInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import com.lz.manage.model.domain.SeatInfo;
+
+import java.io.Serializable;
+
 /**
  * 座位信息Vo对象 tb_seat_info
  *
@@ -13,26 +13,42 @@ import com.lz.manage.model.domain.SeatInfo;
  * @date 2026-02-27
  */
 @Data
-public class SeatInfoInsert implements Serializable
-{
+public class SeatInfoInsert implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 图书馆 */
+    /**
+     * 图书馆
+     */
     private Long libraryId;
 
-    /** 名称 */
+    /**
+     * 分区
+     */
+    private Long partitionId;
+
+    /**
+     * 名称
+     */
     private String name;
 
-    /** 状态 */
+    /**
+     * 状态
+     */
     private String status;
 
-    /** 图片 */
+    /**
+     * 图片
+     */
     private String image;
 
-    /** 描述 */
+    /**
+     * 描述
+     */
     private String description;
 
-    /** 备注 */
+    /**
+     * 备注
+     */
     private String remark;
 
     /**

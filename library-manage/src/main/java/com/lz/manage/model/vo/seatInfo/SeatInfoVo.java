@@ -30,6 +30,12 @@ public class SeatInfoVo implements Serializable {
     private String libraryName;
 
     /**
+     * 分区
+     */
+    private Long partitionId;
+    private String partitionName;
+
+    /**
      * 名称
      */
     private String name;
